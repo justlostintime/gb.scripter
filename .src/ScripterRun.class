@@ -1,0 +1,78 @@
+' Gambas class file
+
+''' This class allows the execution of a Gambas script file directly.\ 
+''' The ScriptFile path may also point to a Gambas project directory, which will be run directly.
+''' <p style="margin-left: 40px">
+''' <code>
+''' Static Public Sub **ScripterRun**( **ScriptFile** as string,
+'''                                Optional CompileParameters As String[] = [] ,
+'''                                         ScriptParameters As String[] = [],
+'''                                         NoWait as Boolean = FALSE,
+'''                                         ExecPlugin as Object = NULL) As Variant.
+''' </code></p><br>
+''' <hr>
+''' ScriptParameters are passed to the script as if you had included them in the command line.<br>
+''' * The simplest call would be:<br>
+''' <p style="margin-left: 40px">
+''' <code>
+''' ScripterExecute("MyClass", "for i as integer = 0 to 10\\nprint \\"hello\\";; i\\nnext")
+''' </code></p><br>
+'''
+''' NoWait will cause the Scripter to start the Script running and return without waiting for completion
+''' ExecPlugin if this parameter is provided then the Scripter will Call the objects It Must have a _Call interface\
+''' and it must be defined as:<br>
+''' <p style="margin-left: 40px">
+''' <code>
+''' Public Sub _Call(args as string[], NoWaitFlag) as variant
+''' </code></p><br>
+''' It will be this object responsibility to EXEC the and manage the script during its execution.<br>
+''' The Simplest Object definition being:<br>
+''' <p style="margin-left: 40px">
+''' <code>
+''' Public Sub _Call(aArgs as string[], nowait as boolean) as variant\
+'''      Dim Result as variant = 0\
+'''     if NoWait then\
+'''       EXEC aArgs\
+'''     else\
+'''     result =  EXEC aArgs Wait\
+'''     endif\
+'''     return result\
+''' End
+''' </code></p><br>
+
+Export
+
+'' Contains any error returned from the Gambas compiler
+'' The error message  is available through ScriptCompileError() as a CompileErrorMsg object
+Static Public CompileResult As Variant = 0
+
+'' Execute a script File directly
+Static Public Sub _call(ScriptFile As String, Optional CompileParameters As String[] = [], ScriptParameters As String[] = [], NoWait As Boolean = False, ExecPlugin As Object = Null, PluginParameters As Variant[] = []) As Variant
+
+  ScriptMain._ResetAll()
+  ScriptCompileErrors.Clear()
+  
+  If Not Component.IsLoaded("gb.eval") Then Component.Load("gb.eval")
+  If Not Class.IsLoaded("ScriptMain") Then Class.load("ScriptMain")
+  If Not Class.IsLoaded("Highlight") Then Class.load("Highlight")
+  
+  ScriptMain.$bRunAsPlugin = True
+  
+  
+  Dim aParms As String[] = CompileParameters.Copy()
+  aParms.Add("gbs" & System.version, 0)
+  aParms.Push(ScriptFile)
+  aParms.insert(ScriptParameters)
+   
+  CompileResult = ScriptMain.ScripterMain(aParms, NoWait, ExecPlugin, PluginParameters)
+
+  'ScriptMain._ResetAll()
+  Return CompileResult
+  
+  Catch 
+    CompileResult = -2
+    CompileError(ScriptFile, Error.where, Error.text)
+'    ScriptMain._ResetAll()
+    Return CompileResult
+    
+End

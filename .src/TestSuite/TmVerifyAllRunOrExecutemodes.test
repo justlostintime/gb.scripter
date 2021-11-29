@@ -1,0 +1,30 @@
+' Gambas test file
+
+Public Sub aVerifyRunModes()
+ Dim result As Variant
+ 
+ result = ScripterRun("UnitTest/TestApp2", [], [], True)
+ Assert.Equals(TypeOf(result), gb.object, "Test Run with nowait does return a process object")
+ Assert.Equals(Object.Class(result).name, "Process", "Verify we recieve a Process object")
+ result.wait                              'wait for the process to complete
+ Assert.Equals(result.state, Process.Stopped, "Verify that the process completed")
+ 
+ ScriptCompileErrors.EnableListing()
+ Dim Myplugin As Object = ScripterPlugin("UnitTest/ExecPluginSample")
+ Assert.Notequals(MyPlugin, Null, "Verify we can load the Exec plugin sample")
+ 
+ result = ScripterRun("UnitTest/TestApp2", [], [], True, MyPlugin, ["This message", 1, 2, 3, 4])
+ Assert.Equals(result, "NoWait : 0 Akin to magicThis message1234", "Verify a good message from Plugin Script")
+ 
+End
+
+Public Sub bVerifyExecuteModes()
+ Dim result As Variant
+ 
+ result = ScripterExecute("MyTestApp", File.Load("UnitTest/TestApp2"), ["-w"], [], True)
+ Assert.Equals(TypeOf(result), gb.object, "Test Execute with nowait does return a process object")
+ Assert.Equals(Object.Class(result).name, "Process", "Verify we recieve a Process object")
+ result.wait                              'wait for the process to complete
+ Assert.Equals(result.state, Process.Stopped, "Execute : Verify that the process completed")
+  
+End

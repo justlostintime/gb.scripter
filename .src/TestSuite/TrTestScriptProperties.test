@@ -1,0 +1,30 @@
+' Gambas test file
+
+'Script default properties
+  ' ProjectInfo.Add("# Gambas Project File 3.0", "Header")
+  ' ProjectInfo.Add("Gambas Script", "Title")
+  ' ProjectInfo.Add("MMain", "Startup")
+  ' ProjectInfo.Add("Ordinary", "Vendor")
+  ' ProjectInfo.Add("0.0.1", "Version")
+  ' ProjectInfo.Add("General Public License 2.0", "License")
+  ' ProjectInfo.Add("", "Type")
+  ' PropertyRW.Add("Tag")
+  ' ProjectInfo.Add("", "Tag") 
+  
+Public Sub aTestVersionProperty()
+  Dim MyScript As New Script("HelloWorld", "Print application.name;;user.name")
+  Assert.equals(MyScript.Version, "0.0.1", "Ensure we can read the #Script properties Version")
+  Assert.Equals(MyScript.Title, "Gambas Script", "Ensure we can read the #Script properties Title")
+  MyScript = New Script("HelloWorld", "#Script title=\"This Test Now\"\nPrint application.name;;user.name")
+  Assert.Equals(MyScript.Title, "This Test Now", "Ensure we can read the #Script properties Title, not default")
+End
+
+Public Sub bTestReadOnlyProperty()
+  
+   Dim MyScript As New Script("HelloWorld", "Print application.name;;user.name")
+   Try MyScript.Vendor = "this"
+   Assert.Error("Try to assign value to #Script Property Error:" & Error.text)
+  
+End
+
+

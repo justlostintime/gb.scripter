@@ -1,0 +1,40 @@
+' Gambas module file
+
+''' Creates and returns the Generated Code for add Properties to a plugin script in support of plugin 
+''' Generated information.
+''' adds version property to plugin file to enable retrieving actual plugin version.\
+''' adds all #Script entries as read only properties that were defined in the script.\
+''' Creates any user defined properties as read/write for example if the user
+''' Adds #Script Property=SECFILE:"~/MyKeys"
+
+Public Sub _call() As String
+  
+  Dim InfoProgPart As String = ""
+  Dim InfoPropertyPart As String = ""
+  Dim InfoDefPart As String = ""
+  
+  For Each sEntry As String In ScriptPreProcess.ProjectInfo
+    
+    If ScriptPreProcess.PropertyRW.Exist(ScriptPreProcess.ProjectInfo.key) Then
+      InfoDefPart &= "Private $s" & ScriptPreProcess.ProjectInfo.key & " as variant = " & Quote(sEntry) & "\n"
+      InfoPropertyPart &= "Property " & ScriptPreProcess.ProjectInfo.key & " as variant\n"
+      InfoProgPart &= "Function " & ScriptPreProcess.ProjectInfo.key & "_Write(value as variant)\n"
+      InfoProgPart &= "$s" & ScriptPreProcess.ProjectInfo.key & "= value\n"
+      InfoProgPart &= "end\n"
+      InfoProgPart &= "Function " & ScriptPreProcess.ProjectInfo.key & "_Read() as variant\n"
+      InfoProgPart &= "Return $s" & ScriptPreProcess.ProjectInfo.key & "\n"
+      InfoProgPart &= "end\n"
+    Else
+      InfoPropertyPart &= "Property Read " & ScriptPreProcess.ProjectInfo.key & " as string\n"
+      InfoDefPart &= "Private $s" & ScriptPreProcess.ProjectInfo.key & " as string = " & Quote(sEntry) & "\n"
+      InfoProgPart &= "Function " & ScriptPreProcess.ProjectInfo.key & "_Read() as string\n"
+      InfoProgPart &= "Return $s" & ScriptPreProcess.ProjectInfo.key & "\n"
+      InfoProgPart &= "end\n"
+    Endif
+    
+  Next
+
+  Return InfoPropertyPart & InfoDefPart & InfoProgPart
+End
+
+

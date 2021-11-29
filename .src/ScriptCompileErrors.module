@@ -1,0 +1,104 @@
+' Gambas module file
+
+''' This module Accumulates the error messages as they are generated\
+''' It is activated when Scripter is used as a plugin.\
+''' It acts as a first in last out queue.\
+''' This module also provided the ability to enable and disable console\
+''' listing when an error occurs.\
+''' This class may be enumerated and referenced as an array.\
+''' Returns an object of type **CompiledErrorMsg**\
+''' Examples:\
+'''      ' returns the next error from the top of the queue
+'''      Dim MyErr as CompileErrorMsg = ScriptCompileErrors()
+''' OR:
+'''      for each e as CompileErrorMsg in ScriptCompileErrors
+'''             print e.text
+'''      next
+
+
+Export
+
+'' Hidden List of compile errors
+Public _CompileErrors As New Variant[]
+
+'' Flag that manages the listing display
+Public _PrintListing As Boolean = False
+
+'' Return the next error from the stack if no parameters\
+'' Places each parameter onto the error stack when provided, returns null
+Public Sub _call(...) As Variant
+  If Param.count > 0 Then 
+    For Each v As Variant In param
+     _put(v)
+    Next
+    Return Null
+  Else
+     Return _get()
+  Endif
+  
+End
+
+'' Enable Scripter to print error listing if compile fails
+'' when running as a component
+Public Sub EnableListing()
+  
+  _PrintListing = True
+  
+End
+
+'' Disable Listing When error occurs when running
+'' as a component. This is the default setting
+Public Sub DisableListing()
+  
+  _PrintListing = False
+  
+End
+
+
+'' Clear all error messages
+Public Sub Clear()
+  
+  _CompileErrors.Clear()
+  
+End
+
+
+'' Add an error to the stack
+Public Sub _put(value As Variant, Optional index As Variant = 0)
+ 
+   If index > _CompileErrors.max Then 
+      _CompileErrors.push(Value)
+   Else
+       _CompileErrors.add(Value, index)
+   Endif
+  
+  
+End
+
+'' Again return the next error from the stack 
+'' return null if nothing else
+Public Sub _get() As Variant
+  
+  If _CompileErrors.count = 0 Then 
+    Return Null
+  Endif
+  
+  Return New CompileErrorMsg(_CompileErrors.pop())
+  
+End
+
+'' allow to iterate over all the errors
+'' each iteration removes an element from the array
+'' And returns it. 
+Public Sub _next() As Variant
+  
+  If Enum.index = Null Then 
+      Enum.index = "Pop"
+  Endif 
+  If _CompileErrors.count = 0 Then 
+    Enum.Stop
+  Endif
+  Return _get()
+  
+End
+

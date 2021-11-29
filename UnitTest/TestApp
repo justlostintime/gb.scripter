@@ -1,0 +1,14 @@
+#!/usr/bin/gbs3
+use "gb.eval.highlight","gb.pcre"
+
+#SCRIPT Version="1.0.5"
+
+Dim x as string = "hello"
+
+#INCLUDE "TestAppInclude"
+
+dim cNew as new TestIt
+
+Print "From Include of class ",cNew();;"Static Class Include ";TestStatic()
+'bogomips
+Print "Version Number :";;application.version

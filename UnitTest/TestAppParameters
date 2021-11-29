@@ -1,0 +1,53 @@
+#Script Version="1.0.1"
+#Script Title="Test App With Passed Parameters"
+#Script Description="For each Parameters that was passed print the value on a new line"
+
+#Script Property=Tag:"Use Public"
+
+'' Included files are added to the project directory
+#Script INCLUDE="/etc/hostname"
+
+public WaitMessage as boolean = false
+Public sub main()
+error "Start the receiving task"
+if args.count > 1 then
+  if args[1] == "wait" then 
+     WaitMessage = true
+  else
+    dim MyArgs as string[] = args.all
+    for i as integer = 1 to MyArgs.max
+      Print myArgs[i]
+    next
+  endif
+endif
+
+if waitMessage then
+'   Dim buffer as string
+   error "WaitMessage"
+'   Line Input buffer
+'   print buffer
+endif
+
+Dim WaitCount as integer = 1000
+while WaitMessage and WaitCount > 0
+   wait 0.01
+   Dec WaitCount
+wend
+
+Error "End Of wait"
+
+quit 0
+
+catch
+   print error.text,error.where
+   quit 2
+end
+
+public sub application_read()
+
+   dim buffer as string
+   buffer = read #last, lof(last)
+   WaitMessage = false
+   Print buffer
+   
+end

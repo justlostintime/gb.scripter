@@ -1,0 +1,985 @@
+' Gambas class file
+
+''' This Component Is For compiling And running Gambas scripts.\
+''' Providing a similar interface As Used With a  Process Class and extending this interface with script specific \
+''' methods for Compiling the script, Formatting Script Parameters, sending and ''' receiving data.\
+''' \
+''' Direct management Of the  EXEC for starting the script process, and Process management are available thru:\
+''' \
+''' The  Cmd property may be used to directly manage execution via EXEC.\
+''' The  Process property may be used by the user to directly access the process of a script which is running.\
+''' \
+''' Once a Script has been compiled it is possible to access any of the #Script properties as if they are a member of the
+''' Script object e.g. if MyScript.Version = "0.0.1" then ......
+''' These properties are read only 
+
+Export 
+
+'' used to define a blocking wait on script.wait()
+Public Const WaitBlocks As Boolean = False
+'' used to define a NonBlocking wait on script.wait()
+Public Const WaitNonBlocking As Boolean = True
+
+'' The actual process being executed
+Private $pScriptProcess As Process = Null              '' The actual process created from a run
+Private $aCompiledScriptArgs As String[]               '' Used to hold the compiled script
+Private $sScriptName As String = ""                           '' holds the name of the script file
+Private $sScriptSource As String = ""                         '' Holds any source provided
+Private $sScriptFullPath As String = ""                       '' full path name of a loaded or saved script
+Private $aUserParameters As New String[]               '' holds the user provided parameters passed to the script by exec
+Private $aCompileOptions As New String[]               '' holds the compile time options
+Private $sOutputArchiveLocation As String = ""         '' Holds the output location of the compiled and generated archive
+Private $cProjectInfo As New Collection                '' Holds all the project information and #Script information for the Script
+
+' Event PreProgramProcess(ScriptSource As String[])  '' delivers the entire program to the event manager can be modified by the event
+' Event PreLineProcess(ScriptLine As String[])               '' delivers a single line in an array so it can be modified by the event
+' Event PostProgram(ScriptSource As String[])               '' Delivers the entire processed script just before it is compiled
+' Event CompileErrors(ScriptName As String, LineNumber As Integer, Position As Integer, message As String) '' Raised when a compile error happens
+Event CompileErrors(ErrMsg As CompileErrorMsg)     '' Raised when a compile error happens, if returns true then raise.error, else return false for bad compile
+'Event CompileWarnings(Message As String)                  ''  raised when a warning is sent from the compiler
+'Event CompileVerbose(Message As String)                    ''  Raised when a verbose line is generated
+'Event ScriptComplete(ScriptExitCode As Integer)        ''  raised when the process completes if waited for
+
+Event {Read}(Pid As Process)                                                '' Raised when there is data to be read from the standard output of the process. Passes Process object
+Event {Kill}(Pid As Process)                                                    '' Raised when the process has terminated, normally or abnormally. Passes process object
+
+'' Raised when there Is Data To be Read On the standard Error Output Of the process.
+'' Unlike the Event Process.Read(gb) Event , you receive the data via the Error parameter rather than using, For example, Line INPUT.
+'' Passes the process object
+Event {Error}({Error} As String, PID As Process)
+
+Property Read LastState As Integer                   ''  
+Property Read LastValue As Integer
+
+'' Returns Or sets If the stream Is Blocking.
+'' When this Property is set, reading From the stream will block If there Is Nothing To Read , 
+'' And writing To the stream will block when, For example, the internal system buffer Is Full.
+Property Blocking As Integer
+
+'' Returns or sets the byte order used to read or write binary data to the stream.
+'' <a href="wiki://comp/gb/stream/byteorder>ByteOrder</a>
+Property ByteOrder As Integer
+
+'' This Property signals whether the Last Use Of Line Input reached the End Of file, instead Of reading a full Line With an End - Of - Line character.
+'' To check If End Of file has been reached In any context, Use the Eof function Or the Stream.Eof(gb)property.
+Property Read EndOfFile As Boolean
+
+'' Return Or set the newline separator used by this stream.
+'' The possible values are:
+'' gb.Unix For lines separated by Chr$(10).
+'' gb.Windows For lines separated by Chr$(13) & Chr$(10).
+'' gb.Mac For lines separated by Chr$(13).
+Property EndOfLine As Integer
+
+'' Return If a stream reached its end.
+'' It 's an equivalent of the Eof function.
+Property Read Eof As Boolean
+
+
+Property Read Handle As Integer     '' Returns the process identifier (a.k.a "pid") of the process object.
+Property Read ID As Integer         '' wiki://comp/gb/process/handle
+
+'' Return Or set If the process Is Ignored.
+'' + If this Property is False(the Default ), Then the interpreter will Not Quit Until that process ends.
+'' + If this Property is True, the interpreter will Kill the process when it quits.
+Property Ignore As Boolean
+
+Property Read IsTerm As Boolean '' Return if a stream is associated with a terminal.
+Property Read Lines As Variant  '' Returns a virtual object that allows you to enumerate a stream line by line.
+Property NullTerminatedString As Boolean '' Return or set if strings are null-terminated when they are serialized.
+Property Read state As Integer '' Returns the current state of the process object: Process.Stopped (gb), Process.Running (gb) or Process.Crashed (gb).
+
+'' Returns Or sets the tag associated With the stream.
+'' This Property is intended For the programmer And Is Never used by the component.It can contain any Variant value
+Property Tag As Variant      
+
+Property Read Term As Variant      '' Return a virtual object that allows to manage the terminal associated with the stream.
+Property Read Value As Integer     '' Returns the value returned by the process when it exited, or the number of the emitted signal if it crashed.
+Property Read Process As Process   '' Process associated with the script
+Property Read Cmd As String[]      '' String[] containing the Command and parameters that can be passed directly to exec
+
+Property Name As String             '' Assign a script name used by String Buffer compile
+Property SourceFile As String       '' Assign a script file name to be compiled
+Property Text As String             '' provide the script source code as a buffer
+
+Property CompileOptions As String[]   '' List of scripter compile option see Scripter document
+Property Warnings As Boolean                '' Turns on the display of warning to the console
+Property Verbose As Boolean                  '' Turns on verbose information printed during the compile
+Property NoCache As Boolean                '' Causes Scripter to always compile the script, ignores the cache
+Property Fast As Boolean                          '' Causes to compiler to produce a fast executable
+Property PrintListing As Boolean           '' Enable listing upon error
+Property OutputArchiveLocation As String   '' Put the generated executable in a specific location not the cache directory
+
+
+
+'' Creates and compiles a new script object from a source file defined by ScriptName.\
+'' OR\ 
+'' if the ScriptSource is defined use ScriptNameas the cache name and compile the ScriptSource text.\
+'' OR\
+'' If nothing is provided then return with initialized object, compile nothing.
+Public Sub _new(Optional ScriptName As String = "", ScriptSource As String = "")
+  $sScriptName = ScriptName
+  If ScriptSource <> "" Then
+      $sScriptSource = ScriptSource
+  Endif 
+  If ScriptName <> "" Then 
+     Compile()
+  Endif
+End
+
+'' Assign the file or buffer to be built to the script object
+'' after it has been created.\
+'' OR\
+'' If called with no parameters then return the process object if it exists
+'' else throws a 'no process' error.
+Public Sub _call(Optional ScriptName As String = "", ScriptSource As String = "") As Process
+  If ScriptName = "" Then
+    If Not $pScriptProcess Then
+    Error.Raise(("No Process")) 
+    Else
+      Return $pScriptProcess
+    Endif 
+  Else
+    $sScriptName = ScriptName
+    If ScriptSource <> "" Then
+      $sScriptSource = ScriptSource
+    Endif 
+  Endif
+  Return Null
+End
+
+'' Named interface for #Script variables
+Public Sub _property(...) As Boolean
+  'Print "Get Property def for : "; Param.name
+  If $cProjectInfo.exist(Param.Name) Then
+      Return True
+  Else
+      Return False
+  Endif
+End
+
+'' Handle the #Script properties before they are compiled
+Public Sub _unknown(...) As Variant
+  
+  If $cProjectInfo.Exist(Param.name) Then
+      If Param.count > 0 Then
+          Error.Raise(("#Script properties are read only"))
+      Endif 
+      Return $cProjectInfo[Param.name]
+  Else If process Then
+    Object.Call(process, Param.name, Param.all)
+  Else
+    Error.Raise(("Unknow Property or Method"))
+  Endif
+  
+End
+
+
+
+'' Compile the Script defined By SourceFile Or Text.\
+'' \
+'' Options - pass an array Of compile parameters that overrides all script compile option properties.\
+'' \
+'' Returns True On good compile.\
+'' \
+'' If an Event handler Is Present Then returns False On bad compile And raises the CompileErrors Event passing a CompileErrorMsg To the Event handler.\
+'' \
+'' If no Event handler present Then Raise an Error With the compile Error text.\
+'' If an Error was raised Then ScriptCompileErrors contains the CompileErrorMsg.\
+'' \
+'' Scripts only have to be compiled once and can be executed may times.
+Public Sub Compile(Optional Options As String[] = Null) As Boolean
+  Dim result As Variant
+  If Options Then
+    $aCompileOptions = Options
+  Endif
+  
+  Dim GetParms As New GetExecCmdLine
+  
+  If $sScriptSource <> "" And If $sScriptName <> "" Then
+      result = ScripterExecute($sScriptName, $sScriptSource, $aCompileOptions, [], True, GetParms)
+  Else If $sScriptName <> "" Then
+      result = ScripterRun($sScriptName, $aCompileOptions, [], True, GetParms)
+  Else
+      If $sScriptSource <> "" And $sScriptName = "" Then
+        Error.Raise(("Script Text defined without Name"))
+      Else
+        Error.Raise(("No Script Source Defined"))
+      Endif
+  Endif 
+  Verbose("Script Compile Result=\"" & Str(result) & "::" & Str(TypeOf(result)) & "\"")
+  If TypeOf(result) = gb.integer Then
+    Dim oErrors As CompileErrorMsg = ScriptCompileErrors()
+    If oErrors = Null Then
+      Verbose("Script Compile no valid error")
+      Return False
+    Endif
+    Verbose("*****Compile error:'" & oErrors.text & "': Sent")
+    Dim ContinueEvent As Boolean 
+    If Object.canraise(Me, "CompileErrors") Then 
+        ContinueEvent = Raise CompileErrors(oErrors)
+        If ContinueEvent Then
+          ScriptCompileErrors(oErrors.text)       ' push the error back onto the error stack
+          Error.Raise(oErrors.text)
+        Endif
+    Else
+       ScriptCompileErrors(oErrors.text)          ' Push the error back onto the error stack
+       Error.Raise(oErrors.text)
+    Endif
+    Return False
+  Else
+    $aCompiledScriptArgs = Result
+  Endif
+  $cProjectInfo = ScriptPreProcess.ProjectInfo.Copy()
+  Return True
+End
+
+'' Save the Script and convert it to a project, All pre and post processing is performed on the Script.
+'' Dest Provides the destination Directory
+'' The Script Path or Name and text must be defined before calling this.\
+'' Returns the path to the new project if succeeds\
+'' Returns null otherwise
+Public Sub SaveAsProject(DestinationDirectory As String) As Variant
+
+  Dim result As Variant
+  Dim tempFile As String = File.Dir(Temp())
+  Dim MyContext As New Context
+  MyContext.$bCreateProject = True
+  
+  If Exist(DestinationDirectory &/ File.Name($sScriptName)) Then
+        Shell.RmDir(DestinationDirectory &/ File.Name($sScriptName))
+  Endif
+
+  If $sScriptSource <> "" And If $sScriptName <> "" Then
+      TempFile = TempFile &/ $sScriptName 
+      If Exist(tempFile) Then Kill tempfile
+
+      File.Save(tempFile, $sScriptSource)
+      result = MakeVirtualProject(MyContext, tempFile, DestinationDirectory)
+  Else If $sScriptName <> "" Then
+      result = MakeVirtualProject(MyContext, $sScriptName, DestinationDirectory)
+  Else
+      If $sScriptSource <> "" And $sScriptName = "" Then
+        Error.Raise(("Script Text defined without Name"))
+      Else
+        Error.Raise(("No Script Source Defined"))
+      Endif
+  Endif 
+  
+  If TypeOf(result) = gb.string Then 
+    Return result
+  Else
+    Return Null
+  Endif
+  
+End
+
+'' Load a Project into a script\
+'' The SourceDirectory is required\
+'' When complete:\
+'' Text will contain the Script\
+'' Name will Contain the original project name not the path.\
+Public Sub LoadFromProject(SourceDirectory As String, Optional TestPlugin As Boolean) As Boolean
+  Dim Desttemp As String = Temp("gen")
+
+  If Exist(DestTemp) Then
+    Rmdir DestTemp
+  Endif
+  Mkdir DestTemp
+  Try ConvertProject(SourceDirectory, Desttemp, TestPlugin)
+  If Not Error Then
+    $sScriptName = File.Name(SourceDirectory) & ".gbs"
+    $sScriptSource = File.Load(DestTemp &/ $sScriptName)
+    $sScriptFullPath = ""
+  Else
+    Error.Raise(Error.text)
+  Endif
+  
+  Return True
+  
+End
+
+'' Loads the content of the specified file to the Text property\
+'' and sets the Name File name portion of the path provided\
+'' if no path is provided then the Script is loaded from Name property.
+Public Sub Load(Optional SourceFileNamePath As String = "")
+
+  If SourceFileNamePath = "" Then
+    If $sScriptFullPath <> "" Then
+      SourceFileNamePath = $sScriptFullPath
+    Else If File.Dir($sScriptName) = "" Then
+      SourceFileNamePath = Env["PWD"] &/ $sScriptName' use current working directory
+    Else
+      SourceFileNamePath = $sScriptName
+    Endif
+    $sScriptFullPath = SourceFileNamePath
+    $sScriptName = File.name($sScriptName)
+  Else
+    $sScriptName = File.Name(SourceFileNamePath)
+    $sScriptFullPath = SourceFileNamePath
+  Endif
+  
+  $sScriptSource = File.Load(SourceFileNamePath)
+  
+End
+
+'' Saves the content of the Text property to the\
+'' Directory Specified by DestinationDirectoryPath using the\
+'' Name Property as the name of the file.\
+'' If no path is specified it uses the Name property as the destination path.
+Public Sub Save(Optional DestinationDirectoryPath As String = $sScriptFullPath)
+ 
+  If $sScriptName = "" And If $sScriptSource = "" Then
+    Error.raise(("Script has not been initialized"))
+  Endif
+  
+  If $sScriptSource = "" Then
+    If Exist($sScriptName) Then 
+       $sScriptSource = File.Load($sScriptName)
+    Else
+       Error.Raise(("No Script Source to save"))
+    Endif
+  Endif
+  
+  If DestinationDirectoryPath = "" Then
+    If $sScriptFullPath <> "" Then
+      DestinationDirectoryPath = $sScriptFullPath
+    Else If File.Dir($sScriptName) = "" Then
+      DestinationDirectoryPath = Env["PWD"] &/ $sScriptName ' use current working directory
+    Else
+      DestinationDirectoryPath = $sScriptName
+      $sScriptFullPath = DestinationDirectoryPath
+      $sScriptName = File.Name($sScriptName)
+    Endif
+  Else
+    $sScriptFullPath = DestinationDirectoryPath
+    $sScriptName = File.Name(DestinationDirectoryPath)
+  Endif
+  If Left($sScriptSource, 10) <> "#!/usr/bin" Then
+    $sScriptSource = "#!/usr/bin/env gbs3\n" & $sScriptSource
+  Endif
+  File.Save(DestinationDirectoryPath, $sScriptSource)
+  Chmod DestinationDirectoryPath To "rwxr-xr-x"
+End
+
+
+'' Wait for the script to complete execution\
+'' Specify optionally if process will block all other events or allow other events while waiting for process to complete"\
+'' Defaults to a non blocking process.
+Public Sub wait(Optional NonBlocking As Boolean = WaitNonBlocking)
+  
+  If nonblocking Then
+    While $pScriptProcess.state = Process.Running
+       Wait
+    Wend
+  Else
+      $pScriptProcess.Wait()
+  Endif
+  
+End
+
+'' Close the input side of the pipe 
+Public Sub CloseInput()
+  
+  $pScriptProcess.CloseInput()
+  
+End
+
+'' Begin data buffering until send() is called
+Public Sub Begin()
+  
+  $pScriptProcess.Begin()
+  
+End
+
+'' Close the send and recieve pipe to the script
+'' Same as the Close stream
+Public Sub Close()
+  
+  $pScriptProcess.Close()
+  
+End
+
+'' Drop all data in the send buffer since the last Begin() call
+Public Sub Drop()
+  
+  $pScriptProcess.Drop()
+  
+End
+
+'' Kills the Script immediately.
+Public Sub Kill()
+  
+  $pScriptProcess.Kill()
+  
+End
+
+'' Read a line of text from the stream, like the LINE INPUT instruction.\
+'' If Escape is specified, then newlines between two Escape characters are ignored.
+'' @{tip}This method is very useful when reading CSV files.
+Public Sub readline(Optional escape As String = "\n") As String
+  
+   Return readline(escape)
+  
+End
+
+'' Send all the data, in one shot, since the last call to [Stream.Begin (gb)](wiki://comp/gb/stream/begin).
+Public Sub send()
+  
+  $pScriptProcess.Send()
+  
+End
+
+'' Start Or Stop watching the stream file descriptor For reading Or writing, after it has been opened.\
+'' Mode Is The Watch type:\
+'' + gb.Read For watching For reading.\
+'' + gb.Write For watching For writing.\
+'' Watch Is TRUE To enable the Watch , False To disable it.
+Public Sub Watch(Mode As Integer, bWatch As Boolean)
+  
+  $pScriptProcess.Watch(mode, bWatch)
+  
+End
+
+
+'' Starts execution of the script wait for the script to complete.\
+'' Return the exit code of the Script process.\
+'' Any number or type of argument may be passed to the script at execution time.\
+'' Arrays may be passed and will be expanded/converted to inline string elements.\
+'' Objects, Collections and Structures can not be used here.\
+'' See RunGetResponse for parameter details.\
+'' \
+'' Example:\
+''       Dim MyScript as new script("ThisScript","Print application.name")
+''       MyScript.run(1,2,3,4,5)
+''       print MyScript.Value
+'' \
+'' Alternatively:\
+''        Dim MyScript as new script("ThisScript","Print application.name")
+''        Exec MyScript.Cmd wait
+''        print process.lastvalue
+Public Sub run(...) As Integer
+  Dim ExecArgs As String[] = $aCompiledScriptArgs.Copy()
+  If $aCompiledScriptArgs Then 
+     ExecArgs = $aCompiledScriptArgs
+     ExecArgs.Insert(BuildRuntimeArgs(param.all))
+      Verbose("$pScriptProcess  = Exec [" & ExecArgs.Join() & "] Wait")
+     $pScriptProcess = Exec ExecArgs Wait
+  Else 
+    Error.Raise(("Script : No compiled script to execute"))
+  Endif
+  Return $pScriptProcess.value
+End
+
+'' Starts Execution of the script and continue without waiting for it to complete.
+'' Any number or type of argument may be passed to the script at execution time.
+'' Arrays may be passed and will be expanded/converted to inline string elements.
+'' Objects, Collections and Structures can not be used here. 
+'' See RunGetResponse for parameter details.
+Public Sub RunNoWait(...) As Process
+  Dim ExecArgs As String[] = $aCompiledScriptArgs.Copy()
+  If $aCompiledScriptArgs Then 
+     ExecArgs = $aCompiledScriptArgs
+     ExecArgs.Insert(BuildRuntimeArgs(param.all))
+     Verbose("$pScriptProcess  = Exec [" & ExecArgs.Join() & "]")
+     $pScriptProcess = Exec ExecArgs
+  Else 
+    Error.Raise(("Script : No compiled script to execute"))
+  Endif
+  Return $pScriptProcess
+End
+
+'' Start execution and return response from script.\
+'' Any number or type of argument may be passed to the script at execution time.\
+'' Arrays may be passed and will be expanded/converted to inline string elements.\
+'' Objects, Collections and Structures can not be used here. \
+''\
+'' All arguments are translated to their string form and passed to the Script.\
+'' The only advantage Of using this method Of starting the Script this way is the auto conversion Of the
+'' parameters.
+'' \
+''Examples:
+''       Dim myArray As String[] = ["this", "that", Done "]"
+''       Dim MyFloat As Float = 4.3
+''       MyResult = MyScript.RubGetResponse(1, 2, myvar, 4, "this text", MyFloat, MyArray)
+'' \
+'' Alternatively\
+'' \
+''       MyResult = Exec MyScript.cmd.insert([Str(1), Str(2), Str(myVar), Str(4), "this Text", Str(MyFloat)).insert(myArray)
+Public Sub RunGetResponse(...) As Variant
+  Dim returncode As Integer = 0
+  Dim ExecArgs As String[] = $aCompiledScriptArgs.Copy()
+  Dim Response As Variant = Null
+  Dim RunTimeArgs As String[]
+  If $aCompiledScriptArgs Then 
+     ExecArgs = $aCompiledScriptArgs
+     If Param.count > 0 Then 
+       RunTimeArgs = BuildRuntimeArgs(param.all)
+       ExecArgs.Insert(RunTimeArgs)
+     Endif
+     Verbose("Exec [" & ExecArgs.Join() & "] to Response")
+     Exec ExecArgs To Response
+     returncode = Process.LastValue
+  Else 
+    Error.Raise(("Script : No compiled script to execute"))
+  Endif
+  Return response
+End
+
+
+'' Starts Execution of the script exits with I/O setup to script.\
+'' Any number or type of argument may be passed to the script at execution time.\
+'' Arrays may be passed and will be expanded/converted to inline string elements.\
+'' Objects, Collections and Structures can not be used here.\
+'' See RunGetResponse for parameter details.\
+'' Generates a Read event  with the Process of the sender when data arrives from the Script.\
+'' \
+'' Examples:\
+''       MyScript as Script
+''       MyScript = new Script("ThisScript","Print \"Hi\"") as "MyReader"
+''       MyScript.runReadWrite(1,2,3,4)
+''       
+''       public sub MyReader_Read( Pid as process)
+''           dim buffer as string
+''           buffer = read #pid, -lof(pid)
+''           print buffer
+''        end
+'' Alternatively:\
+''       MyScript as Script
+''       MyScript = new Script("ThisScript","Print \"Hi\"") as "MyReader"
+''       MyProcess as process
+''       MyProcess = Exec MyScript.cmd for read write as "MyReader"
+''
+''       public sub MyReader_Read()
+''           dim buffer as string
+''           buffer = read #Last, -lof(Last)
+''           print buffer
+''        end
+Public Sub RunReadWrite(...) As Process
+  Dim ExecArgs As String[] = $aCompiledScriptArgs.Copy()
+  If $aCompiledScriptArgs Then 
+     ExecArgs = $aCompiledScriptArgs
+     ExecArgs.Insert(BuildRuntimeArgs(param.all))
+     Verbose("$pScriptProcess  = Exec [" & ExecArgs.Join() & "] for Read Write as '_ScriptIO'")
+     $pScriptProcess = Exec ExecArgs For Read Write As "_ScriptIO"
+  Else 
+    Error.Raise(("Script : No compiled script to execute"))
+  Endif
+  Return $pScriptProcess
+End
+
+
+Public Sub _ScriptIO_read()
+  
+  Raise Read($pScriptProcess)
+  
+End
+
+Public Sub _ScriptIO_kill()
+  
+  Raise Kill($pScriptProcess)
+  
+End
+
+
+Public Sub _ScriptIO_error(ErrMsg As String)
+  
+  Raise Error(ErrMsg, $pScriptProcess)
+  
+End
+
+'' This function should be used to send data to the script process.\
+'' Any type of value may be sent. Objects must have a _write special method.\
+'' Alternatively it is possible to use the process property to send data.\
+'' Information is sent as:
+'' [[
+'' Value Type
+'' --
+'' Write Type
+'' ==
+'' Objects
+'' --
+'' **write #process, value as object**
+'' ==
+'' Strings
+'' --
+'' **write #process, value**
+'' ==
+'' If Length included
+'' --
+'' **write #process, value, length**
+'' ==
+'' anything else
+'' --
+'' **write #process, value as variant**
+'' ]]
+Public Sub {write}(Value As Variant, Optional length As Long = 0)
+  
+  If length > 0 Then
+  Write #$pScriptProcess, Value, length 
+  Else 
+    Select Case TypeOf(Value)
+      Case gb.Object
+        Write #$pScriptProcess, value As Object
+      Case gb.String
+        Write #$pScriptProcess, value
+      Case Else
+        Write #$pScriptProcess, value As Variant
+    End Select
+    
+  Endif
+  Flush
+  
+End
+
+'' This function can be used to read string data from the script process when a read event occurs.\
+'' Returns all data available from the process by default.\
+'' If a length is provided then up to the length of data requested is read.\
+'' Example:
+''       buffer = MyScript.read()
+''\
+'' For more flexibility Use the following method instead.\
+'' Examples\
+''       buffer = Read #MyScript(), -lof(MyScript()) 
+''       number = Read #MyScript() as integer
+Public Sub {Read}(Optional length As Long = 0) As Variant
+  
+  If length > 0 Then
+    Return Read #$pScriptProcess, length 
+  Else 
+    Return Read #$pScriptProcess, Lof($pScriptProcess)
+  Endif
+  
+End
+
+Private ValidObjects As String[] = ["Integer[]", "Float[]", "Long[]", "Boolean[]", "Date[]", "Short[]", "Single[]"]
+Private Sub BuildRuntimeArgs(aArgs As Variant[]) As String[]
+  Dim ResultSet As New String[]
+  For Each v As Variant In aArgs
+    Select Case TypeOf(v)
+      Case gb.Object
+        If Object.Class(v).name == "String[]" Then 
+          For Each s As String In v
+            ResultSet.Add(s)
+          Next
+        Else If ValidObjects.Exist(Object.Class(v).name) Then
+           For Each s As String In v
+            ResultSet.Add(Str$(s))
+          Next
+        Else 
+          Error.Raise(("Objects - May not be passed as arguments to a script"))
+        Endif 
+      Case gb.String
+        ResultSet.Add(v)
+      Case Else 
+        ResultSet.add(Str(v))
+    End Select
+  Next
+  Return ResultSet
+End
+
+
+' Everything below this line is a return of the property from he process
+
+Private Function LastState_Read() As Integer
+
+  Return $pScriptProcess.handle
+
+End
+
+Private Function LastValue_Read() As Integer
+
+  Return $pScriptProcess.LastValue
+
+End
+
+Private Function Blocking_Read() As Integer
+
+   Return $pScriptProcess.Blocking
+
+End
+
+Private Sub Blocking_Write(Value As Integer)
+
+   $pScriptProcess.Blocking = value
+
+
+End
+
+Private Function ByteOrder_Read() As Integer
+
+   Return $pScriptProcess.ByteOrder
+
+End
+
+Private Sub ByteOrder_Write(Value As Integer)
+
+   $pScriptProcess.ByteOrder = value
+
+End
+
+Private Function EndOfFile_Read() As Boolean
+
+   Return $pScriptProcess.EndOfile
+
+End
+
+Private Function EndOfLine_Read() As Integer
+
+   Return $pScriptProcess.EndOfLine
+
+End
+
+Private Sub EndOfLine_Write(Value As Integer)
+
+   $pScriptProcess.endOfLine = value
+
+End
+
+Private Function Eof_Read() As Boolean
+
+   Return $pScriptProcess.Eof
+
+End
+
+Private Function Handle_Read() As Integer
+
+ Return $pScriptProcess.Handle
+
+End
+
+Private Function ID_Read() As Integer
+
+   Return $pScriptProcess.ID
+
+End
+
+Private Function ignore_Read() As Boolean
+
+   Return $pScriptProcess.Ignore
+
+End
+
+Private Sub ignore_Write(Value As Boolean)
+
+   $pScriptProcess.ignore = Value
+
+End
+
+Private Function IsTerm_Read() As Boolean
+
+   Return $pScriptProcess.IsTerm
+
+End
+
+Private Function Lines_Read() As Variant
+
+   Return $pScriptProcess.Lines
+
+End
+
+Private Function NullTerminatedString_Read() As Boolean
+
+   Return $pScriptProcess.NullTerminatedString
+
+End
+
+Private Sub NullTerminatedString_Write(Value As Boolean)
+
+  $pScriptProcess.NullTerminatedString = value
+
+End
+
+Private Function state_Read() As Integer
+
+  Return $pScriptProcess.State
+
+End
+
+Private Function Tag_Read() As Variant
+
+  Return $pScriptProcess.tag
+
+End
+
+Private Sub Tag_Write(Value As Variant)
+
+  $pScriptProcess.tag = value
+
+End
+
+Private Function Term_Read() As Variant
+
+  Return $pScriptProcess.Term
+
+End
+
+Private Function Value_Read() As Integer
+
+  Return $pScriptProcess.Value
+
+End
+
+Private Function Process_Read() As Process
+
+  Return $pScriptProcess
+
+End
+
+Private Function cmd_Read() As String[]
+  Dim CmdArgs As String[] = $aCompiledScriptArgs
+  CmdArgs.Insert($aUserParameters)
+  Return CmdArgs
+End
+
+Private Function Warnings_Read() As Boolean
+
+  Return $aCompileOptions.Exist("-w")
+
+End
+
+Private Sub Warnings_Write(Value As Boolean)
+
+  If value Then 
+    SetOption("-w")
+  Else 
+    RemoveOption("-w")
+  Endif
+
+End
+
+Private Function Verbose_Read() As Boolean
+
+  Return $aCompileOptions.Exist("-v")
+
+End
+
+Private Sub Verbose_Write(Value As Boolean)
+
+   If value Then 
+    SetOption("-v")
+  Else 
+    RemoveOption("-v")
+  Endif
+
+End
+
+Private Function NoCache_Read() As Boolean
+
+  Return $aCompileOptions.Exist("-c")
+
+End
+
+Private Sub NoCache_Write(Value As Boolean)
+
+ If value Then 
+    SetOption("-c")
+  Else 
+    RemoveOption("-c")
+  Endif
+  
+End
+
+Private Function Fast_Read() As Boolean
+
+  Return $aCompileOptions.Exist("-f")
+
+End
+
+Private Sub Fast_Write(Value As Boolean)
+ If value Then 
+    SetOption("-f")
+  Else 
+    RemoveOption("-f")
+  Endif
+
+End
+Private Sub SetOption(value As String)
+  
+  If $aCompileOptions.Exist(value) Then Return
+  $aCompileOptions.Add(value)
+  
+End
+Private Sub RemoveOption(value As String)
+  
+  Dim pos As Integer = $aCompileOptions.Find(value)
+  If pos < 0 Then Return
+  $aCompileOptions.Remove(pos)
+  
+End
+
+
+Private Function CompileOptions_Read() As String[]
+
+  Return $aCompileOptions
+
+End
+
+Private Sub CompileOptions_Write(Value As String[])
+
+  $aCompileOptions = value
+
+End
+
+Private Function Name_Read() As String
+
+   Return $sScriptName
+
+End
+
+Private Function Text_read() As String
+  
+  Return $sScriptSource
+  
+End
+
+Private Function Text_write(Value As String)
+  
+  $sScriptSource = Value
+  
+End
+
+
+Private Sub Name_Write(Value As String)
+
+  $sScriptName = Value
+
+End
+
+
+Private Function SourceFile_Read() As String
+
+  Return $sScriptName 
+
+End
+
+Private Sub SourceFile_Write(Value As String)
+
+  If Not Exist(Value) Then
+    Error.Raise("File not found : " & Value)
+  Endif
+  $sScriptName = Value
+End
+
+
+Private Function PrintListing_Read() As Boolean
+      Return ScriptCompileErrors._PrintListing
+End
+
+Private Sub PrintListing_Write(Value As Boolean)
+
+   ScriptCompileErrors._PrintListing = value
+
+End
+
+Private Function OutputArchiveLocation_Read() As String
+
+  Return $sOutputArchiveLocation
+
+End
+
+Private Sub OutputArchiveLocation_Write(Value As String)
+
+  $sOutputArchiveLocation = Value
+
+End

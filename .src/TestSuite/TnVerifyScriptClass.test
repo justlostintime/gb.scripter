@@ -1,0 +1,119 @@
+' Gambas test file
+
+Public GlobalScript As Script
+Public GlobalBuffer As String
+
+Public Sub aCreateScriptObjects()
+  
+  Dim Scripta As Script
+  Dim Scriptb As Script
+  Dim Scriptc As New Script
+  Dim Scriptd As New Script
+  
+  ScriptCompileErrors.EnableListing
+  
+  Try Scripta = New Script("UnitTest/TestAppParamters")
+  Assert.Error("Compile of Script with bad file name fails")
+  
+  Try Scripta = New Script("UnitTest/TestAppParameters")
+  Assert.Noterror("Good compile of Script from file")
+  
+   ScriptCompileErrors.DisableListing
+  Try Scriptb = New Script("TheTest4", file.load("UnitTest/TestAppParametersBad"))
+  Assert.Error("Bad Compile : " & Left(Error.text, -1))
+  
+  Try Scriptb = New Script("TheTest4", file.load("UnitTest/TestAppParameters"))
+  Assert.NotError("Compile of Script from String buffer")
+
+  Assert.Notequals(Scripta, Null, "Verify we have a valid Script Object from a file compile")
+  Assert.Notequals(Scriptb, Null, "Verify we Have a valid Script Object from a text buffer compile")
+  
+  Dim Response As String = Scripta.RunGetResponse("A", 1, 1.2, [1, 2, 3], True, Now)
+  Assert.Equals(Split(Response, "\n")[0], "A", "Verify we can execute the File script and get a response")
+  
+  Response = Scriptb.RunGetResponse("A", 1, 1.2, [1, 2, 3], True, Now)
+  Assert.Equals(Split(Response, "\n")[0], "A", "Verify we can execute the String buffer script and get a response")
+  
+  Scriptc.SourceFile = "UnitTest/TestAppParameters"
+  Scriptc.Verbose = False
+  Try Scriptc.Compile()
+  Assert.Noterror("No Error in building from parameters set")
+  Response = Scriptc.RunGetResponse("A", 1, 1.2, [1, 2, 3], True, Now)
+  Assert.Equals(Split(Response, "\n")[0], "A", "Verify we can execute the Built compile and get a response")
+  
+  Dim ProjectDirectory As String = "/tmp/HelloWorld"
+  TSR.FakeProject(ProjectDirectory)
+  Scriptd.SourceFile = ProjectDirectory
+  Scriptd.Verbose = False
+  Scriptd.NoCache = True
+  Try Scriptd.Compile()
+  Assert.Noterror("No Error in building from parameters set using a project directory")
+  Response = Scriptd.RunGetResponse()
+  Assert.Equals(response, "Hello World\n", "Test result from project execution")
+  TSR.FakeProjectRemove(ProjectDirectory)
+End
+
+Public Sub VerifyReadWrite()
+  
+  Dim MyScript As Script
+  GlobalBuffer = ""
+  MyScript = New Script("UnitTest/TestAppParameters") As "MyTest"
+  MyScript.RunReadWrite("This is", "a", "list", 1, 2, 3, 4, 5, 6, 7, 8, 9, 0)
+  MyScript.Wait(Script.WaitNonBlocking)
+  Assert.Equals(MyScript.value, 0, "Check that the process ended ok")
+  Assert.Equals(Left(GlobalBuffer, 4), "This", "veryify Events are arriving")
+  
+End
+
+
+Public Sub VerifyReadWriteUsingRead()
+
+  GlobalBuffer = ""
+  GlobalScript = New Script("UnitTest/TestAppParameters") As "MyTestRead"
+  GlobalScript.RunReadWrite("This is", "a", "list", 1, 2, 3, 4, 5, 6, 7, 8, 9, 0)
+  GlobalScript.Wait(Script.WaitNonBlocking)
+  Assert.Equals(GlobalScript.value, 0, "Check that the process ended ok")
+  Dim ReturnedSet As String[] = Split(GlobalBuffer, "\n")
+  Assert.Equals(ReturnedSet[0], "This is", "Verify Script function read works")
+  
+End
+
+Public Sub VerifyReadWriteUsingWrite()
+
+  GlobalBuffer = ""
+  GlobalScript = New Script("UnitTest/TestAppParameters") As "MyTestRead"
+  GlobalScript.RunReadWrite()
+  GlobalScript.write("This Is A Message\n")
+  GlobalScript.closeinput()
+  GlobalScript.Wait(Script.WaitNonBlocking)
+  Assert.Equals(GlobalScript.value, 0, "Check that the process ended ok")
+  Dim ReturnedSet As String[] = Split(GlobalBuffer, "\n")
+  Assert.GreaterEqual(ReturnedSet.count, 0, "Check if any data was recieved")
+  If ReturnedSet.count >= 1 Then
+    Assert.Equals(ReturnedSet[0], "This Is A Message", "Verify Script function write works")
+  Endif
+  
+End
+
+Public Sub MyTest_read(pid As Process)
+  
+  Dim buffer As String
+  Try buffer = Read #pid, Lof(pid)
+  GlobalBuffer &= buffer
+  
+End
+
+Public Sub MyTestRead_read(pid As Process)
+  
+  Dim buffer As String
+  Dim MyPid As Process
+  MyPid = pid
+  
+  Try buffer = GlobalScript.Read()
+  GlobalBuffer &= buffer
+  
+End
+
+
+
+

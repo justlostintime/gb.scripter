@@ -1,0 +1,94 @@
+' Gambas module file
+
+Private HighlightOn As Boolean = False
+Private HighlightOverride As Boolean = False '' set when the automatic highlight is overridded
+Property highlighting As Boolean  '' Turn on or off listing text highlighting
+
+
+Public Sub _call(oContext As Context, sPrjPath As String, CompileErrors As String) As String
+  Dim aErrors As String[] = Split(CompileErrors, "\n", "", True, True)
+  Dim sOutput As String = ""
+  For Each CompileError As String In aErrors 
+        Dim aErrorParts As String[] = Split(CompileError, ":")
+        Dim sSource As String
+        Try sSource = File.Load(sPrjPath &/ ".src" &/ aErrorParts[0])
+        If Error Then
+            Return ("Error : UnKnown Module/Class Dumping everything!") & ":\n" & DumpAll(oContext, sPrjPath)
+        Endif
+        Dim aFileParts As String[] = Split(aErrorParts[0], ".")
+        If Trim(aErrorParts[2]) == "error" Then aErrorParts.add("0", 2) 
+        sOutPut &= Subst("# Gambas &1 file : &2:&3:&4:&5\n", aFileParts[1], aFileparts[0], aErrorParts[1], aErrorParts[2], aErrorParts.last) & 
+                                   GenListing(oContext, sSource, aErrorParts[1], aErrorParts[2], aErrorParts.extract(4, -1).Join(":"))
+  Next
+  Return sOutPut
+End
+
+Public Sub GenListing(oContext As Context, sSource As String, Optional iLine As Integer = 0, iPosition As Integer = 0, sError As String = "") As String
+  
+  Dim aLines As String[] = Split(sSource, "\n", "\"\"", False, True)
+  Dim sOutput As String = "\n"
+  Dim cTextHighlight As TextHighlighter = TextHighlighter["gambas"]
+  Dim Pattern As String = "&1&2:&3\n"
+  If HighlightOn Then pattern = "&1&2&3"
+  For i As Integer = 0 To aLines.Max
+          Dim OutLine As String = aLines[i]
+          If HighlightOn Then 
+              If Left(Outline, 2) = "'#" Then 
+                If Left(outline, 9) == "'#Script " Then 
+                  Dim sScript As String = cTextHighlight.ToANSI(Mid(outline, 2, 8))
+                  outline = Replace(sScript, "\n", " " & cTextHighlight.ToAnsi(Right(OutLine, -9)))
+                Else
+                  Outline = cTextHighlight.ToAnsi(Right(OutLine, -1))
+                Endif 
+
+               
+              Else 
+                Outline = cTextHighlight.ToAnsi(aLines[i])
+              Endif
+          Endif
+          If Not oContext Or If Not oContext.$bTerseListing Or If i + 1 = iline Or If oContext.$bVerbose And iLine = 0 Then
+               sOutPut &= Subst(Pattern, Format(i + 1, "####0"), IIf((i + 1) = iLine, "*", " "), outline)
+          Endif
+          If i + 1 = iLine Then
+             sOutPut &= Space(5 + iPosition) & " ^" & sError & "\n"
+         Endif
+  Next
+  Return sOutput
+End
+
+Private Sub DumpAll(oContext As Context, sPrjPath As String) As String
+  Dim sOutPut As String = ""
+  For Each sPrjSource As String In Dir(sPrjPath &/ ".src")
+        sOutPut = Subst("# Gambas &1 file :&2\n", Split(sPrjSource, ".")[1], Split(sPrjSource, ".")[0])
+        sOutPut &= GenListing(oContext, File.Load(sPrjPath &/ ".src" &/ sPrjSource)) & "\n"
+      Next
+  Return sOutPut
+End
+
+'' Turn on the highlight feature if the output stream is a terminal
+'' Most terminals now support color or shading
+Public Sub UseHighlighting(Optional OutputStream As File = File.out) As File
+  
+  If HighlightOverride Then Return                            ' allow user to override/control the highlight settings
+  Dim TermPath As String = OutputStream.Term.Name
+  Dim sStat As Stat = Stat(TermPath)
+  If sStat.type = gb.Device And If sStat.Group = "tty" Then 
+    HighlightOn = True
+  Endif
+  
+End
+
+'' Return the cirrent state of TextHighlighting
+Private Function highlighting_Read() As Boolean
+
+  Return HighlightOn
+
+End
+
+'' Turns on or off text highlighting on listings to terminal
+Private Sub highlighting_Write(Value As Boolean)
+
+  HighlightOverride = True
+  HighlightOn = value
+
+End

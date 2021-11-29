@@ -1,0 +1,380 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gbs3 3.15.1\n"
+"POT-Creation-Date: 2021-06-27 16:04 UTC\n"
+"PO-Revision-Date: 2020-08-18 19:09 UTC\n"
+"Last-Translator: brian <brian@westwoodsvcs.com>\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: .project:1
+msgid "gb.scripter"
+msgstr ""
+
+#: .project:2
+msgid "Scripter Component, execute scripts and load script based plugins"
+msgstr ""
+
+#: CComponent.class:69
+#, fuzzy
+msgid "Component: cannot read"
+msgstr "Warning: cannot read"
+
+#: CComponent.class:328
+msgid "Unknown component"
+msgstr "Unknown component"
+
+#: Compile.module:16
+msgid "Compiler error"
+msgstr ""
+
+#: Compile.module:25
+msgid "Compile exit code"
+msgstr ""
+
+#: ConvertProject.module:28
+msgid "Unable to find source project"
+msgstr ""
+
+#: ConvertProject.module:38
+msgid "Output Path for script not found"
+msgstr ""
+
+#: ConvertProject.module:49
+msgid "Unable to access the project file"
+msgstr ""
+
+#: ConvertProject.module:89
+msgid "Unable to generate Script using  file"
+msgstr ""
+
+#: ConvertProject.module:107
+msgid "Unable to write Output Generated script to"
+msgstr ""
+
+#: GenerateFiles.module:15
+msgid "Begin Script Process"
+msgstr ""
+
+#: GenerateFiles.module:15
+msgid "from args or"
+msgstr ""
+
+#: GenerateFiles.module:18
+msgid "Begin Script Process : Read From StdIn"
+msgstr ""
+
+#: GenerateFiles.module:44 GenerateFromLazyScript.module:70
+msgid "Before Compile"
+msgstr ""
+
+#: GenerateFiles.module:50
+msgid "Auto Generation of Public"
+msgstr ""
+
+#: GenerateFiles.module:50
+msgid "entry point"
+msgstr ""
+
+#: GenerateFiles.module:53
+msgid "Script Contains Public or Sub Definitions Without Having a 'Public Sub main()' defined"
+msgstr ""
+
+#: GenerateFiles.module:64
+msgid "Completed Generation of files "
+msgstr ""
+
+#: GenerateFromLazyScript.module:32
+msgid "Warning : Block Skipped seems to be included in previous block"
+msgstr ""
+
+#: GenerateFromLazyScript.module:98
+#, fuzzy
+msgid "Missing"
+msgstr "missing"
+
+#: Libraries.module:126 TcMMainFunctions.test:58
+msgid "Unknown Library"
+msgstr "Unknown Library"
+
+#: Libraries.module:129
+msgid "use Library Path"
+msgstr "use Library Path"
+
+#: MakeListing.module:11
+msgid "Error : UnKnown Module/Class Dumping everything!"
+msgstr ""
+
+#: MakeVirtualProject.module:38
+msgid "Create project"
+msgstr "Create project"
+
+#: MakeVirtualProject.module:42
+msgid "Unable to create project directory"
+msgstr ""
+
+#: MakeVirtualProject.module:47
+msgid "Unable to create project .src directory"
+msgstr ""
+
+#: ParseArgs.module:53
+msgid "Unknown option"
+msgstr "Unknown option"
+
+#: ParseArgs.module:72
+msgid "GAMBAS Scripter version"
+msgstr "GAMBAS Scripter version"
+
+#: ParseArgs.module:74
+msgid "GAMBAS Webpage Scripter version"
+msgstr "GAMBAS Webpage Scripter version"
+
+#: ParseArgs.module:107
+msgid "Option Is Not supported For WebPages"
+msgstr "Option Is Not supported For WebPages"
+
+#: ParseArgs.module:157
+msgid "Not Supported List Type - Library or Component - are supported"
+msgstr ""
+
+#: Reader.class:464
+#, fuzzy
+msgid " in script file : "
+msgstr "include script file"
+
+#: Reader.class:473
+msgid "Use :"
+msgstr ""
+
+#: Reader.class:515
+msgid " From File : "
+msgstr ""
+
+#: Reader.class:515
+#, fuzzy
+msgid "Including script file"
+msgstr "include script file"
+
+#: Reader.class:518
+msgid "Include"
+msgstr ""
+
+#: Reader.class:518
+msgid "Possible Circular Refrence"
+msgstr ""
+
+#: Reader.class:603
+msgid "Out of bounds Program Text Line Number"
+msgstr ""
+
+#: Reader.class:615
+msgid "Out of bounds Program Tokens Line Number"
+msgstr ""
+
+#: Reader.class:626
+msgid "Out of bounds Program Types Line Number"
+msgstr ""
+
+#: Reader.class:638
+msgid "Out of bounds Program Positions Line Number"
+msgstr ""
+
+#: Reader.class:670
+msgid "Out of bounds Program Get Line Number"
+msgstr ""
+
+#: ScriptApplyAlias.module:19
+msgid ""
+"Unable to load the gb.pre component,Alias processing will be ignored\n"
+"Is it istalled?"
+msgstr ""
+
+#: ScriptApplyAlias.module:27
+msgid "Unable to load class regexp, Alias processing will be ignored"
+msgstr ""
+
+#: ScriptApplyKeywordFilter.module:23
+msgid ""
+"Unable to load the gb.pre component, KeyWord Filter processing will be ignored\n"
+"Is it installed?"
+msgstr ""
+
+#: ScriptApplyKeywordFilter.module:31
+msgid "Unable to load class regexp, KeyWord Filter processing will be ignored"
+msgstr ""
+
+#: ScriptApplyKeywordFilter.module:45
+msgid "Script Apply Filter"
+msgstr ""
+
+#: ScriptApplyKeywordFilter.module:47
+msgid "Script Filter Match"
+msgstr ""
+
+#: ScriptApplyKeywordFilter.module:48
+msgid "Script Filter"
+msgstr ""
+
+#: ScriptMain.module:100
+msgid "Unable to create cache directory"
+msgstr ""
+
+#: ScriptMain.module:110
+msgid "Reading from default Stdin"
+msgstr ""
+
+#: ScriptMain.module:112
+msgid "Input read"
+msgstr ""
+
+#: ScriptMain.module:114
+msgid "no input file specified"
+msgstr "no input file specified"
+
+#: ScriptMain.module:118
+msgid "execute from command line"
+msgstr ""
+
+#: ScriptMain.module:143
+msgid "Specified directory is not a project directory"
+msgstr ""
+
+#: ScriptMain.module:151
+msgid "input file does not exist"
+msgstr "input file does not exist"
+
+#: ScriptMain.module:196
+msgid "Script is in Cache and will not be compiled"
+msgstr ""
+
+#: ScriptMain.module:215
+msgid "compiling server page"
+msgstr "compiling server page"
+
+#: ScriptMain.module:275
+msgid "Unable to create plugin md5 directory"
+msgstr ""
+
+#: ScriptMain.module:317
+msgid "Script Output Begins Bellow This Line"
+msgstr ""
+
+#: ScriptMain.module:329
+msgid "Script Output Ends"
+msgstr ""
+
+#: ScriptMain.module:330
+msgid "Execution Time"
+msgstr ""
+
+#: ScriptMain.module:333
+#, fuzzy
+msgid "Script had Segmentation fault, Code"
+msgstr "Segmentation fault"
+
+#: ScriptPreProcess.module:112
+msgid "Invalid #Script PreProcess Command Format"
+msgstr ""
+
+#: ScriptPreProcess.module:122
+msgid "Invalid #Script PreProcess Command"
+msgstr ""
+
+#: ScriptPreProcess.module:138
+msgid "Invalid #Script 'Type' Definition"
+msgstr ""
+
+#: ScriptPreProcess.module:193
+msgid "Unable to find Public file"
+msgstr ""
+
+#: ScriptPreProcess.module:200
+msgid "Invalid Plugin Property Declaration"
+msgstr ""
+
+#: ScriptPreProcess.module:212
+msgid "Using default project vendor (unknown)"
+msgstr ""
+
+#: ScriptSetAliasTable.module:31 ScriptSetKeywordFilter.module:25
+msgid "Component gb.pcre not found, filter will be ignored"
+msgstr ""
+
+#: ScriptSetAliasTable.module:36 ScriptSetKeywordFilter.module:30
+msgid "Unable to load regexp, filter will be ignored"
+msgstr ""
+
+#: ScripterExecute.class:64 ScripterPlugin.class:88
+msgid "Unable to Create Temp Workfile"
+msgstr ""
+
+#: UseLibComp.module:20
+msgid "Syntax error"
+msgstr "Syntax error"
+
+#: UseLibComp.module:26
+#, fuzzy
+msgid "Use library"
+msgstr "use library"
+
+#: UseLibComp.module:30
+#, fuzzy
+msgid "Use component"
+msgstr "use component"
+
+#~ msgid " Unknown component"
+#~ msgstr "Unknown component"
+
+#~ msgid "Redefinition of variable"
+#~ msgstr "Redefinition of variable"
+
+#~ msgid "Not Allowed"
+#~ msgstr "Not Allowed"
+
+#~ msgid "From"
+#~ msgstr "From"
+
+#~ msgid "procedure not defined, creating it"
+#~ msgstr "procedure not defined, creating it"
+
+#~ msgid "Main procedure already defined"
+#~ msgstr "Main procedure already defined"
+
+#~ msgid "Comma missing"
+#~ msgstr "Comma missing"
+
+#~ msgid "Struct Defined outside main"
+#~ msgstr "Struct Defined outside main"
+
+#~ msgid "Structure name missing"
+#~ msgstr "Structure name missing"
+
+#~ msgid "Unexpected Structure declaration"
+#~ msgstr "Unexpected Structure declaration"
+
+#~ msgid "create class"
+#~ msgstr "create class"
+
+#~ msgid "Class name missing"
+#~ msgstr "Class name missing"
+
+#~ msgid "Unexpected CLASS declaration"
+#~ msgstr "Unexpected CLASS declaration"
+
+#~ msgid "process file"
+#~ msgstr "process file"
+
+#~ msgid "for more information"
+#~ msgstr "for more information"
+
+#~ msgid "Type"
+#~ msgstr "Type"
+
+#~ msgid "Gambas Script"
+#~ msgstr "Gambas Script"
+
+#~ msgid "gbs3"
+#~ msgstr "gbs3"

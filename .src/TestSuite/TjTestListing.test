@@ -1,0 +1,33 @@
+' Gambas test file
+
+Public Sub aGetListing()
+  Dim AddLineNumbersPlugin As String = "public sub _call(SourceText as string,optional iLine as integer = 0,MsgText as string = \"\") as string\n"
+                                       "Dim aLines as string[] = split(SourceText,\"\\n\")\n"
+                                       "Dim Linecount as integer = 1\n"
+                                       "Dim outputText as string = \"\\n\"\n"
+                                       "for each s as string in aLines\n"
+                                       " outputText &= Subst(\"&1&2:&3\\n\", Format(LineCount, \"####0\"), IIf((LineCount) = iLine, \"*\", \" \"), s)\n"
+                                       " if LineCount = iLine then outputText &= MsgText\n"
+                                       "inc LineCount\n"
+                                       "Next\n"
+                                       "Return outputText\n"
+                                       "End"
+                                       
+  Dim AddLineNumbers As Object = ScripterPlugin.FromString("AddLineNum", AddLineNumbersPlugin)  
+  Assert.Notequals(AddLineNumbers, Null, "Verify we can compile the plugin for this test")                             
+  Dim Source As String = "For i as integer=0 to 10\nPrint \"Hello World\"\nNext"
+  Dim WithError As String = "For i as integer=0 to 10\nPrint \"Hello World\"\nNext"
+  Dim WithNoError As String = "For i as integer=0 to 10\nPrint \"Hello World\"\nNext"
+  
+  WithNoError = AddLineNumbers(WithNoError, 0)
+  WithError = AddLineNumbers(WithError, 2, "                        ^Not World Earth\n")
+  
+  Dim Listing As String = ScriptListing(Source, "Not World Earth", 2, 18)
+
+  Assert.Equals(Listing, WithError, "Verify the error line was added to the result")
+  Listing = ScriptListing(Source)
+
+  Assert.Equals(Listing, WithNoError, "Verify Listing is created without error line")
+ 
+End
+

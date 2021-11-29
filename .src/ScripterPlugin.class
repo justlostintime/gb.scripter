@@ -1,0 +1,108 @@
+' Gambas class file
+
+''' This returns the instantiated class as a Gambas object of the Compiled plugin script<br>
+''' If the load of the plugin fails then NULL is returned.<br>
+''' ScriptCompileErrors can be called to get the result of the compile.<br>
+''' The returned object may be called directly.<br>
+''' <p style="margin-left: 40px">
+''' <code>
+''' Static Public Sub ScripterPlugin( ScriptPath As String, 
+'''                            Optional CompileParameters As String[] = [],
+'''                                     PluginNewParameters As Variant[] = Null ) As Variant
+''' </code></p><br>
+''' This allows integration of Gambas scripts into an executing application at run-time<br>
+''' * Loading Plugins from script files be like this example :<br>
+''' <p style="margin-left: 40px">
+''' <code>
+''' Dim myplugin As Object = ScripterPlugin(MyScript,["-b","-c"])\
+''' myPlugin()
+''' </code></p><br>
+''' Scripts may also be loaded as plugins directly for string buffers as well.<br>
+''' * The simplest use case would be:<br>
+''' <p style="margin-left: 40px">
+''' <code>
+''' Dim myplugin As Object = ScripterPlugin.FromString("Bozzo2", "for i as integer = 0 to 10\\nprint \\"hello\\";; i\\nnext")\
+''' myplugin()
+''' </code></p><br>
+'''
+''' When a script contains a _new() method that requires parameters during instantiation of the object then these can be passed
+''' in the call to plugin.<br>
+''' * Example of loading a plugin with parameters to _new()
+''' <p style="margin-left: 40px">
+''' <code>
+''' Dim myplugin As Object = ScripterPlugin(MyScript,["-b","-c"],["NewParm1","NewParm2","etc.."])\
+''' myPlugin()
+''' </code></p><br
+
+Export 
+
+'' Contains any error returned from the Gambas compiler
+'' The Text error is available through ScriptCompileError()
+Static Public CompileResult As Integer = 0
+
+
+'' Default call to this class requires a file name to be loaded as a plugin into the application<br>
+'' Returns an Gambas object upon successful build and load of the plugin<br>
+'' Returns Null upon failure
+Static Public Sub _call(ScriptPath As String, Optional CompileParameters As String[] = [], PluginNewParameters As Variant[] = Null) As Variant
+   Dim PluginClass As Class
+   Dim PluginObject As Object
+   
+   ScriptMain._ResetAll()
+   ScriptCompileErrors.Clear()
+   
+   If Not Component.IsLoaded("gb.eval") Then Component.Load("gb.eval")
+   If Not Class.IsLoaded("ScriptMain") Then Class.load("ScriptMain")
+   If Not Class.IsLoaded("Highlight") Then Class.load("highlight")
+   
+   ScriptMain.$bRunAsPlugin = True
+   
+   Dim aParms As String[] = CompileParameters.Copy()
+   aParms.Add("gbs" & System.version, 0)
+   aParms.Push("-p")
+   aParms.Push(ScriptPath)
+   CompileResult = ScriptMain.ScripterMain(aParms)
+   If CompileResult <> 0 Then 
+      Warning("Plugin Compile Failed :" & ScriptMain.$sLastCompileError)
+      ScriptMain._ResetAll()
+      Return Null
+   Endif
+   
+   Try Component.Load(ScriptMain.$sExecutable)
+   Try PlugInClass = Class.Load(ScriptMain.$sStartUpClass)
+   If IsNull(PluginNewParameters) Then
+      PlugInObject = PluginClass.New()
+   Else 
+      PlugInObject = PluginClass.New(PlugInNewParameters)
+   Endif 
+   ScriptMain._ResetAll()
+   Return PluginObject
+End
+
+'' Allow a user to provide a string program and build it<br>
+'' Returns an Gambas object upon successful build and load of the plugin<br>
+'' Returns Null upon failure
+Static Public Sub FromString(PluginName As String, Program As String, Optional CompileParameters As String[] = [], PluginNewParameters As Variant[] = Null) As Variant
+  
+  Dim WorkFile As String = Temp(PluginName)
+  Try File.Save(WorkFile, Program)
+  If Error Then 
+    Dim CompileErrorText As String = ("Unable to Create Temp Workfile") & " : " & Error.text
+    CompileError(PluginName, 0, CompileErrorText)
+  Endif
+  
+  Return _call(WorkFile, CompileParameters, PluginNewParameters)
+End
+
+
+'' Turn on verbose info during plugin compile\
+'' A wealth of debug and warning information will be displayed\
+'' onto stdout. This can also be done through the -v option on the call to
+'' ScriptPlugin()
+Static Public Sub SetVerbose()
+If Verbose.$bVerboseOn = True Then 
+  Verbose.$bVerboseOn = False
+Else 
+  Verbose.$bVerboseOn = True
+Endif
+End

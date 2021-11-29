@@ -1,0 +1,12 @@
+#Script Version="1.0.1"
+#Script Title="Test App With Passed Parameters"
+#Script Description="For each Parameters that was passed print the value on a new line"
+
+#Script Property=Tag:"Use Public"
+
+'' Public files are added to the project directory
+#Script Include="/etc/hostname"
+
+for each v as variant in bArgs   ' with bad variable name
+  Print v
+next

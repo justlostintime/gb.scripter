@@ -1,0 +1,19 @@
+' Gambas module file
+
+''' Called to write a warning level message to the current error output sink.<br>
+''' output is controlled by the -w flag when a compile is started<br>
+''' User Plugins can use this to add warnings to console output.
+
+Export 
+
+'' Flag that can be set or unset to control warning message display
+Public $bWarningOn As Boolean = False
+
+'' Called to place a compiler warning onto the error output stream
+Public Sub _Call(sMsg As String, Optional bIsError As Boolean = False)
+
+ If $bWarningOn Or bIsError Then
+  Error "gbs"; System.Version; IIf(bIsError, " Error : ", " Warning : "); sMsg
+Endif 
+
+End

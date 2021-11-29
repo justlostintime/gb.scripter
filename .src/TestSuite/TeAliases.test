@@ -1,0 +1,49 @@
+' Gambas test file
+
+Public AliasList As Collection = New Collection(gb.ignoreCase) 
+
+Public Program As String[] = ["dog", 
+                              "red(\"apples\",\"orange\")",
+                              "grape(Chicken,\"orange\")",
+                              "grapeMake(\"&1 Chicken\",\"orange\")",
+                              "PrintAll"]
+                              
+Public Results As String[] = ["Print \"Big Dogs Are Fun\" ",
+                              "Dim Purple as string[] = [\"apples\", \"orange\"] ",
+                              "Dim Red_wine as string[] = [\"Good\",\"Chicken\",\"orange\"]",
+                              "Print Red_wine[0] ",
+                              "Dim White_wine as string = Subst$(\"&1 Chicken\",\"orange\") ",
+                              "Print White_Wine;;Red_wine.join();;Purple.join() "]
+                              
+Public Aliases As Collection = ["dog": "Print \"Big Dogs Are Fun\"",
+                                "red()": "Dim Purple as string[] = [&1, &2]",
+                                "wine": "Dim Red_wine as string[]",
+                                "grape()": "Wine = [\"Good\",\"&1\",&2]\nPrint Red_wine[0]", 
+                                "grapeMake()": "Dim White_Wine as string = Subst$(&1,&2)",
+                                "PrintAll": "Print White_Wine;;Red_wine.join();;Purple.join()"]
+                              
+Public OutputProgram As New String[]
+
+Public Sub aCheckAlias()
+
+  Dim Result As String[]
+  
+  For Each s As String In Program
+    Result = ScriptApplyAlias(s, Aliases)
+    If result Then OutputProgram.Insert(result)
+  Next
+   assert.ok(TSR.CompareStringArray(OutputProgram, Results), "Verify the processed Script is correct")
+   
+End
+
+Public Sub bCheckExecuteWithAlias()
+
+  Dim myNoAliasPlugin As Object = ScripterPlugin.FromString("NoAliasTest", OutputProgram.Join("\n"), [])
+  Assert.Notequals(myNoAliasPlugin, Null, "Ensure we could build the No Alias  script")
+  ScriptSetAliasTable(Aliases)
+  Dim myPlugin As Object = ScripterPlugin.FromString("WithAliasTest", Program.Join("\n"), [])
+  Assert.Notequals(myPlugin, Null, "Ensure we could build the script")
+End
+
+
+

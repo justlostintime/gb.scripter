@@ -1,0 +1,64 @@
+' Gambas test file
+
+Public Sub aLoadfromProject()
+
+ Dim ProjectDirectory As String = "/tmp/HelloWorld"
+ Dim MyScript As New Script
+ Dim Result As String = ""
+
+ TSR.FakeProject(ProjectDirectory)
+ MyScript.LoadFromProject(ProjectDirectory, True)
+ Assert.Equals(MyScript.Name, "HelloWorld.gbs", "Ensure the script is named correctly")
+ Try MyScript.Compile()
+ Assert.Noterror("Compile completed correctly")
+ Try Result = MyScript.RunGetResponse()
+ Assert.Noterror("Executed without error")
+ Assert.Equals(result, "Hello World\n", "Verify script executed")
+ 
+ TSR.FakeProjectRemove(ProjectDirectory)
+ 
+End 
+
+Public Sub bSaveAsProject()
+  
+ Dim ProjectDirectory As String = "/tmp"
+ Dim MyScript As New Script
+ Dim MyProject As Script
+ Dim Result As String = ""
+ MyScript("HelloWorld", "Print \"Hello World\"")
+ Result = MyScript.SaveAsProject(ProjectDirectory)
+ Assert.Equals(result, ProjectDirectory &/ "HelloWorld", "Verify the Project was created")
+ Try MyProject = New Script(result)
+ Assert.Noterror("Verify that project can be built")
+ Result = MyProject.RunGetResponse()              ' make sure we can execute the project
+ Assert.equals(Result, "Hello World\n", "Verfy that we could run the generated project")
+  
+End
+
+Public Sub cSaveScriptToFile()
+  
+  Dim Result As String
+  Dim MyScript As New Script("HelloWorld", "Print \"Hello world\"")
+  Try MyScript.Save("/tmp/HelloWorld.gbs")
+  Assert.Noterror("Ensure that the file was saved correctly")
+  Exec ["/tmp/HelloWorld.gbs"] To Result
+  Assert.Equals(Result, "Hello world\n", "Ensure we can execute the Script")
+End
+
+Public Sub dLoadScriptFile()
+  
+  Dim MyScript As New Script
+  Dim Result As String
+  Try MyScript.Load("UnitTest/FakeProjectMain") 
+  Assert.Noterror("Ensure we can load the file")
+  Assert.Equals(MyScript.Name, "FakeProjectMain", "Ensure The Script Name Is Set Correctly")
+  Assert.notEquals(MyScript.text, "", "Check that the Script was loaded")
+  Try MyScript.Compile()
+  Assert.Noterror("Verify that Script can be compiled")
+  Try result = MyScript.RunGetResponse()
+  Assert.Noterror("Verify the Script Executed")
+  Assert.Equals(Result, "Hello World\n", "Ensure that the created Script executed correctly")
+  
+End
+
+

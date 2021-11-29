@@ -1,0 +1,19 @@
+' Gambas test file
+
+Public Sub aDefineExecPlugin()
+
+ Dim result As Variant
+ 
+ Dim MyPlugin As Object = ScripterPlugin("UnitTest/ExecPluginSample")
+ Assert.Notequals(MyPlugin, Null, "Verify we can load the Exec plugin sample")
+
+ result = ScripterRun("UnitTest/TestApp", [], [], False, MyPlugin)
+ Assert.Equals(result, "Wait : 0 Akin to magic", "Ensure we get the result returned by the ExecPlugin script file")
+ 
+ result = ScripterRun("UnitTest/TestApp", [], [], False, MyPlugin)
+ Assert.Equals(result, "Wait : 0 Akin to magic", "Ensure we can run same script many time")
+ 
+ result = ScripterExecute("TestrApp", "For i as integer = 0 to 10\nprint \"hello world\";i\nnext", [], [], False, MyPlugin)
+ Assert.Equals(result, "Wait : 0 Akin to magic", "Ensure we get the result returned by the ExecPlugin script buffer")
+ 
+End

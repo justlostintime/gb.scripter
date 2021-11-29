@@ -1,0 +1,55 @@
+' Gambas module file
+
+Public Sub MyFile() As File
+  
+  Return File.out
+  
+End
+
+Public Sub TestLoadProject()
+  
+ Dim ProjectDirectory As String = "/tmp/HelloWorld"
+ Dim MyScript As New Script
+ Dim Result As String = ""
+ 
+ TSR.FakeProject(ProjectDirectory)
+ MyScript.LoadFromProject(ProjectDirectory)
+ Try MyScript.Compile()
+ Try Result = MyScript.RunGetResponse()
+ TSR.FakeProjectRemove(ProjectDirectory)
+  
+End
+
+
+
+
+Public Sub main()
+
+  TestLoadProject()
+  
+  Dim MyScript As New Script("theTest", "Print User.name;; Application.name")
+  MyScript.run()
+   MyScript.run()
+    MyScript.run()
+     MyScript.run()
+  ScripterExecute("MyScript", "for i as integer = 0 to 10\nprint \"hello\";; i\nnext")
+  Dim myplugin As Object = ScripterPlugin.FromString("MyScript2", "for i as integer = 0 to 10\nprint \"hello\";; i\nnext")
+  myplugin()
+  myplugin()
+  
+  Print "Get reader to generate a script, then run it"
+  Dim myReader As New Reader(Null, "MyScript", "for i as integer = 0 to 10\nprint \"hello\";; i\nnext")
+  Print "execute reader returned script"
+  ScripterExecute("NewScript", myReader.GetProgram())
+  
+  Print "Completed Reader test"
+  Print #MyFile(), "Complete with filedef"
+  
+  ScripterExecute("TestTestAppIncludes", File.Load("UnitTest/TestTestAppIncludes"), ["-c"])
+  
+  ScripterRun("UnitTest/TestApp")
+  
+  Print "Completed Test app includes"
+End 
+' Gambas module file
+

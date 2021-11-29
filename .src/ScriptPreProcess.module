@@ -1,0 +1,297 @@
+' Gambas module file
+
+''' This function will process any compiler #Script options.\
+''' It Verifying if they are valid most entries are project file information.\
+''' Type - type of script Component, library or blank for script\
+''' Version - Version number of the script\
+''' Description - of the script \
+''' Maintainer- of this script\
+''' Author or Authors  - of this script\
+''' Vendor - vendor name\
+''' License - defaults to version 2\
+''' Title - title of this script. will be the form title by default for GUI scripts\
+''' Name - name of the script\
+''' Startup - the startup class of the script\
+''' Include - include a file into the project directory useful for creating a project from a script\
+''' Property - define a user specific property for a script - only valid for plugins \
+''' \
+''' For plugins all Project information entries become read only properties of the plugin generated class.\
+''' This interface may be called to add  properties to the property table before a script is compiled.\
+''' \
+''' This is called for each line of a script starting with #Script when a script is compiled.\
+''' \
+''' Some Examples\
+'''  #Script      type="Library"\
+'''  #Script      Vendor="mycompany"\
+'''  #Script      Version="1.0.3"\
+'''  Only for Plugins define any extra properties needed\
+'''  These properties are read/write\
+'''  #Script      Property=MyProp:"MyPropValue"\
+'''  Example: #Script Property=TAG:"MoveMotor "\
+Export 
+
+
+
+'' Indicates that the Script being processed is a library
+Public isLibrary As Boolean = False
+
+'' Indicates that the Script being processed is a component
+Public isComponent As Boolean = False
+
+'' Indicates that the Script being processed is Install
+Public isInstall As Boolean = False
+
+'' Indicates that the Script being processed has a vendor
+Public hasVendor As Boolean = False
+
+'' Indicates that the Script being processed has a vendor
+Public hasAuthor As Boolean = False
+
+'' Indicates that the Script being processed has an Author
+Public hasVersion As Boolean = False
+
+'' Indicates that the Script being processed has Options Defined
+Public hasOptions As Boolean = False
+
+'' Each entry in this table will copy a file to the project directory
+'' will be refrenced in the code by name only
+'' Primarily used when converting a script to a project
+Public PublicFiles As New String[] 
+
+'' Is a list of read only the Properties associated with the plugin Script
+Public ProjectInfo As Collection
+
+'' Is a list of read/write properties associated with the plugin script
+Public PropertyRW As New String[]
+
+Private Enum eType, eVersion, eDescription, eMaintainer, eAuthor, eVendor, eLicense, eInstall, eTitle, eName, eNotFound, eIgnored, eStartup, eUseHttpServer, ePublic, eProperty, eError, eScript
+' On  Goto SYMTYPE, SYMVERSION, SYMDESCRIPTION, SYMMAINTAINER, SYMAUTHORS, SYMVENDOR, SYMLICENSE, SYMINSTALL, SYMTITLE, SYMNAME, SYNOTFOUND, SYMIGNORED, SYMSTARTUP
+Private KeyWords As Collection = ["TYPE": eType, "VERSION": eVersion, "DESCRIPTION": eDescription, 
+                                 "MAINTAINER": eMaintainer, "AUTHORS": eAuthor, "AUTHOR": eAuthor, 
+                                 "VENDOR": eVendor, "LICENSE": eLicense,
+                                 "INSTALL": eInstall, "TITLE": eTitle, "NAME": eName, "ERROR": eError,
+                                 "SCRIPT": eScript, "STARTUP": eStartup, "USEHTTPSERVER": eUseHttpServer,
+                                 "INCLUDE": ePublic, "PROPERTY": eProperty]
+                                 
+Private CompTypes As Collection = ["LIBRARY": 0, "COMPONENT": 1, "PROGRAM": 2]
+
+Public Sub _init()
+
+  CompTypes.default = 3
+  KeyWords.default = eNotFound
+  PublicFiles.Clear()
+  PropertyRW.Clear()
+
+  ProjectInfo = New Collection(gb.ignorecase)
+  ProjectInfo.Add("# Gambas Project File 3.0", "Header")
+  ProjectInfo.Add("Gambas Script", "Title")
+  ProjectInfo.Add("MMain", "Startup")
+  ProjectInfo.Add("Ordinary", "Vendor")
+  ProjectInfo.Add("0.0.1", "Version")
+  ProjectInfo.Add("General Public License 2.0", "License")
+  ProjectInfo.Add("", "Type")
+  PropertyRW.Add("Tag")
+  ProjectInfo.Add("", "Tag") 
+  
+End
+
+'' Reset all fields back to default
+Public Sub reset()
+
+  _init()
+
+End
+
+'' Script Preprocessor entries  will look like this:<br>
+'' #Script name="xxxx"<br>
+'' #Script startup="MySub"<br>
+'' #Script Version ="0.2.3" , ...<br>
+'' #Script Property=AppSet:"2.0.0.1"<br>
+'' #Script Include="FileNameToIncludeIntoProject"<br>
+'' #Script Source="Varname"  ' scripter will generate this variable that will contain the scripts Source Directory<br>
+'' Process a tokenized script line for #Script directives<br>
+'' This can be called by the users application to add property
+'' entries to a compiled script.<br>
+Public Sub _call(aSymbols As String[], aTypes As Integer[], LineNumber As Integer, sPath As String)
+
+  'Dim inLine As String
+  Dim KeyIndex As Integer
+  Dim PropKey As String
+  Dim i As Integer
+
+  ' If hasOptions Then ' options have already been defined
+  '   ScriptMain.CompileError("Options", LineNumber, "Project Options already defined")
+  ' Endif
+
+  While aTypes.last = Highlight.Comment Or aTypes.last = Highlight.help ' get rid Of comments
+     aTypes.Pop()
+     aSymbols.Pop()
+  Wend
+  
+  If aSymbols.count < 2 Then Return
+  For i = 1 To aSymbols.Max
+    If aSymbols[i] = "," Then Continue
+    PropKey = aSymbols[i]
+    KeyIndex = KeyWords[Upper(aSymbols[i])]
+    Inc i
+    
+    If aSymbols[i] <> "=" Or If i + 1 > aTypes.max Or If aTypes[i + 1] <> Highlight.string And aTypes[i + 1] <> Highlight.symbol Then
+       CompileError(sPath, LineNumber, ("Invalid #Script PreProcess Command Format") & " :" & aSymbols.Join(" "))
+       Return
+    Endif
+    Inc i
+    
+    On KeyIndex Goto SYMTYPE, SYMVERSION, SYMDESCRIPTION, SYMMAINTAINER, SYMAUTHORS, SYMVENDOR, SYMLICENSE, SYMINSTALL, SYMTITLE, SYMNAME, SYNOTFOUND, SYMIGNORED, SYMSTARTUP, 
+                                        SYMUSEHTTPSERVER, SYMPUBLIC, SYMPROPERTY
+    Continue
+
+  SYNOTFOUND:
+  
+    If ProjectInfo.Exist(PropKey) Then 
+         ProjectInfo[PropKey] = UnQuote(aSymbols[i])
+         Continue
+    Else 
+        CompileError(sPath, LineNumber, ("Invalid #Script PreProcess Command") & " :" & aSymbols[i])
+         Break
+    Endif
+
+  SYMTYPE:
+    Dim TypeIndex As Integer
+    TypeIndex = CompTypes[Upper(UnQuote(aSymbols[i]))]
+    Select Case TypeIndex
+      Case 0 'Library
+        ProjectInfo["Type"] = UnQuote(aSymbols[i])
+        isLibrary = True
+      Case 1 'Component
+        ProjectInfo["Type"] = UnQuote(aSymbols[i])
+        isComponent = True
+      Case 2 'program
+        ' does nothing
+      Case 3 ' unknown thingy
+        CompileError(sPath, LineNumber, ("Invalid #Script 'Type' Definition") & " :" & aSymbols[i])
+    End Select
+    Continue
+
+  SYMVERSION:
+    ProjectInfo["Version"] = UnQuote(aSymbols[i])
+    Continue
+
+  SYMDESCRIPTION:
+    ProjectInfo["Description"] = UnQuote(aSymbols[i])
+    Continue
+
+  SYMMAINTAINER:
+    ProjectInfo["Maintainer"] = UnQuote(aSymbols[i])
+    Continue
+
+  SYMAUTHORS:
+    ProjectInfo["Authors"] = UnQuote(aSymbols[i])
+    Continue
+
+  SYMVENDOR:
+    ProjectInfo["Vendor"] = UnQuote(aSymbols[i])
+    Continue
+
+  SYMLICENSE:
+    ProjectInfo["License"] = UnQuote(aSymbols[i])
+    Continue
+
+  SYMNAME:
+    ProjectInfo["Name"] = UnQuote(aSymbols[i])
+    Continue
+
+  SYMINSTALL:
+    isInstall = IIf(Upper(UnQuote(aSymbols[i])) = "TRUE", True, False)
+    Continue
+
+  SYMTITLE:
+    ProjectInfo["Title"] = UnQuote(aSymbols[i])
+    Continue
+    
+  SYMSTARTUP:
+    ProjectInfo["Startup"] = UnQuote(aSymbols[i])
+    Continue
+    
+  SYMUSEHTTPSERVER:
+    ProjectInfo["UseHttpServer"] = UnQuote(aSymbols[i])
+    Continue
+    
+  SYMPUBLIC:
+    Dim sPublicFilePath As String = UnQuote(aSymbols[i])
+    Dim sPPATH As String = File.Dir(sPublicFilePath)
+    If sPpath = "" Then 
+        sPublicFilePath = Env["PWD"] &/ sPublicFilePath
+    Endif
+    If Not Exist(sPublicFilePath) Then 
+       CompileError(sPath, LineNumber, ("Unable to find Public file") & " :" & sPublicFilePath)
+    Endif
+    PublicFiles.Add(sPublicFilePath)
+    Continue 
+    
+  SYMPROPERTY: ' Define a Plugin property and value Format #Script Property=Propertyname:value 
+    If aSymbols[i + 1] <> ":" Or If aTypes[i + 2] <> Highlight.String Then 
+      CompileError(sPath, LineNumber, ("Invalid Plugin Property Declaration"))
+    Endif
+    PropertyRW.Add(aSymbols[i])
+    ProjectInfo[aSymbols[i]] = UnQuote(aSymbols[i + 2])
+    i += 2
+    Continue 
+    
+
+  SYMIGNORED:
+
+  Next
+
+  If (isLibrary Or isComponent) And If ProjectInfo["vendor"] = "" Then
+    ProjectInfo["vendor"] = IIf(isLibrary, "(unknown)", "gb")
+    Warning(("Using default project vendor (unknown)"))
+  Endif
+
+End
+
+
+Public Sub GetProjectOptions() As String
+
+  Dim sOptOut As String = ProjectInfo["Header"] & "\n"
+
+  For Each s As String In ProjectInfo
+    If s <> "" And If ProjectInfo.key <> "Header" Then
+      sOptOut &= ProjectInfo.key & "=" & s & "\n"
+    Endif
+  Next
+  Return sOptOut
+
+End
+
+
+'' Sets the startup Class/Module for a script
+Public Sub SetStartup(StartupName As String)
+
+     ProjectInfo["Startup"] = StartUpName
+     
+End
+
+'' Returns the startup class/module for a project
+Public Sub GetStartup() As String
+  
+  Return ProjectInfo["Startup"]
+  
+End
+
+'' Acts like an array of properties for the project
+Public Sub _put(value As Variant, index As String)
+  
+   ProjectInfo[index] = value
+  
+End
+
+'' acts like an array of porperties of the project
+Public Sub _get(index As String) As Variant
+  
+  Return ProjectInfo[index]
+  
+End
+
+
+
+

@@ -1,0 +1,26 @@
+' Gambas test file
+
+TestApp As String = "#Script Include=\"/etc/hostname\"        '' This is a comment on this line\n"
+                                       "print \"Source= \" & Application.path \n"
+                                      "dim sProfile as string = file.load(\"hostname\")\n"
+                                      "Print sProfile\n"
+                                      "quit 2\n"
+                                      
+Public Sub aCheckInclude()
+  
+  Dim oMyScript As New Script
+  oMyScript.verbose = False
+  oMyScript.NoCache = True
+  oMyScript.PrintListing = False
+  oMyScript("RawTest", TestApp)
+  oMyScript.Compile()
+  
+  Dim result As Variant = oMyScript.Run()
+  Assert.Equals(result, 2, "Verify that script executed to the end")
+  
+  result = oMyScript.RunGetResponse()
+  Dim sLines As String[] = Split(result, "\n")
+  Assert.Equals(Left(sLines[0], 7), "Source=", "Verify Source :" & Right(sLines[0], -7))
+  Assert.Equals(sLines[1], System.host, "Verify the included file can be read")
+  
+End

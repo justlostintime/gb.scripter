@@ -1,0 +1,26 @@
+' Gambas module file
+
+''' Apply each of the Pre Program Plugins in the PreProgramPlugins table\
+''' to the provided string[] array.\
+''' Any Changes in the array are carried into the script compile process\
+''' See: ScriptSetPostProcessPlugin for details<br>
+''' This function is also called by the reader.tokenize process before it begins to compile
+''' any included or source script.
+
+Export
+
+'' Apply the Pre Process Program level Plugins<br>
+'' sProgram is an array of script lines.
+Public Sub _call(sProgram As String[]) As String[]
+  
+  If ScriptSetPreProcessPlugins.HasProgramPreProcess() Then 
+     For Each oPreProc As Object In Reader.PreProgramPlugins
+       sProgram = oPreProc.PreProcessProgram(sProgram)
+     Next
+  Endif
+  
+  Return sProgram
+  
+End
+
+

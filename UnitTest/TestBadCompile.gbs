@@ -1,0 +1,6 @@
+Dim a As Integer = 1
+Dim b As String = "3"
+
+Print "Hello Test Bad App"
+Print "Test Bad App result=";; a * b / 0
+Prints "End Test Bad App"

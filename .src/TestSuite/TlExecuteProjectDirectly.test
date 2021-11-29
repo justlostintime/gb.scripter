@@ -1,0 +1,23 @@
+' Gambas test file
+
+Public Sub aDirectProjectExecute()
+  
+  Dim ProjectDirectory As String = "/tmp/TestProjectExecute" ' This must be setup for the test environment
+  TSR.FakeProject(ProjectDirectory)
+  
+  If Not Exist(projectDirectory) Then 
+    Assert.Ok(True, "You must Correctly configure a test project directory to run this test")
+  Else
+    Dim result As Variant = ScripterRun(ProjectDirectory, ["-c"])
+    Assert.Equals(result, 0, "Verify that we can directly execute from a project directory")
+    
+    Dim MyPlugin As Object = ScripterPlugin("UnitTest/ExecPluginSample")
+    Assert.Notequals(MyPlugin, Null, "Verify we can load the exec plugin sample")
+    
+    result = ScripterRun(ProjectDirectory, [], [], False, Myplugin)
+    Assert.Equals(result, "Wait : 0 Akin to magic", "Ensure we get the result returned by the Plugin executing a project")
+  Endif
+  
+  TSR.FakeProjectRemove(ProjectDirectory)
+  
+End

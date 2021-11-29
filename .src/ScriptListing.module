@@ -1,0 +1,32 @@
+' Gambas module file
+
+''' Provides the ability to create a listing of a script from a script contained in a string buffer
+''' with the ability to display errors when required.\
+''' If called without error information, only a simple listing is returned.\
+''' Otherwise it generates an error listing and returns it as a string formatted
+''' with line numbers, and a ^ with the error message under the error line.\
+'''
+''' Public Sub **ScriptListing**(**TheScript** As String, Optional **ErrorText** As String = "",\
+''' <p style="margin-left: 100px"> **ErrorLineNumber** As Integer = 0, **ErrorAtPosition As Integer** = 0) As String</p>\
+'''
+''' * A Simple example:
+''' <p style="margin-left: 40px">
+''' <code>
+'''    Dim AListing as String = ScriptListing("For i as integer=0 to 10\nPrint \"Hello World\"\nNext\n",2,11,"Not World Earth")
+''' </code></p><br>
+''' * Would create a Listing containing:
+''' <p style="margin-left: 40px">
+''' <code>
+'''     1   For I as integer = 0 to 100\
+'''     2   "Hello World"\
+'''     ..............^ Not World Earth\
+'''     3   Next\
+''' </code></p><br>
+Export 
+
+'' Create a listing from a script source, optionally with errors
+Public Sub _call(TheScript As String, Optional ErrorText As String = "", ErrorLineNumber As Integer = 0, ErrorAtPosition As Integer = 0) As String
+  
+  Return MakeListing.GenListing(Null, TheScript, ErrorLineNumber, ErrorAtPosition, ErrorText)
+
+End

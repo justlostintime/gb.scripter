@@ -1,0 +1,20 @@
+' Gambas test file
+
+Public Sub aCompileFail()
+  
+  Dim result As Integer = ScripterExecute("BadComp", File.load("UnitTest/TestBadCompile.gbs"), ["-c"])
+  Assert.Notequals(result, 0, "Check that compile failed")
+  Dim message As CompileErrorMsg = ScriptCompileErrors()
+  Assert.Equals(message.text, "MMain.module:7:7: error: Unknown identifier: Prints\n")
+  
+End
+
+Public Sub bCompilePluginFailed()
+
+  Dim result As Variant = ScripterPlugin("UnitTest/TestBadCompile.gbs", ["-c"])
+  Assert.equals(result, Null, "Check that Plugin compile failed")
+  Dim message As CompileErrorMsg = ScriptCompileErrors()
+  Assert.Equals(message.text, "TestBadCompile.class:51:7: error: Unknown identifier: Prints\n")
+  
+End
+

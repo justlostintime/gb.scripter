@@ -1,0 +1,93 @@
+' Gambas class file
+
+''' This class allows the execution of a Gambas script directly
+''' from a string buffer.<br>
+''' <p style="margin-left: 40px">
+''' <code>
+'''       Static Public Sub ScripterExecute( ScriptName As String, ScriptSource As String,\
+'''                            Optional CompileParameters As String[] = [], 
+'''                                     ScriptParameters As String[] = [], 
+'''                                     NoWait as Boolean = FALSE, 
+'''                                     ExecPlugin as Object = NULL) As Variant.
+''' </code></p><br>
+''' The extra input Script name is used to create the
+''' cached compiled version of the script.<br>
+''' <hr>
+''' ScriptParameters are passed to the script as if you had included them in the command line.<br>
+''' * The simplest call would be:<br>
+''' <p style="margin-left: 40px">
+''' <code>
+''' ScripterExecute("MyScript", "for i as integer = 0 to 10\\nprint \\"hello\\";; i\\nnext")
+''' </code></p><br>
+'''
+''' **NoWait** will cause the Scripter to start the Script running and return without waiting for completion.\
+''' **ExecPlugin** if this parameter is provided then the Scripter will Call this objects to perform the actual execution of the script.\
+'''  The plugin is provided with the command array and the nowait flag.\
+'''  The Provided plugin must be defined as shown below:\
+''' <p style="margin-left: 40px">
+''' <code>
+''' Public Sub _Call(args as string[], NoWaitFlag) as variant
+''' </code></p><br>
+''' It will be this object's responsibility to EXEC and manage the script during its execution.\
+''' The Simplest Object definition being:\
+''' 
+''' <code>
+''' Public Sub _Call(aArgs as string[], nowait as boolean) as variant
+'''      Dim Result as variant = 0
+'''      if NoWait then
+'''        EXEC aArgs
+'''      else
+'''      result =  EXEC aArgs Wait
+'''      endif
+'''      return result
+''' End
+''' </code><br>
+
+Export
+
+'' Contains any integer error returned from the gambas compiler.\
+'' The Text error is available through **ScriptCompileErrors()**
+Static Public CompileResult As Variant = 0
+
+
+'' Execute an in memory script from a string
+Static Public Sub _call(ScriptName As String, ScriptSource As String, Optional CompileParameters As String[] = [], ScriptParameters As String[] = [], NoWait As Boolean = False, ExecPlugin As Object = Null, PluginParameters As Variant[] = []) As Variant
+
+  ScriptMain._ResetAll()
+  ScriptCompileErrors.Clear()
+  
+  If Not Component.IsLoaded("gb.eval") Then Component.Load("gb.eval")
+  If Not Class.IsLoaded("ScriptMain") Then Class.load("ScriptMain")
+  If Not Class.IsLoaded("Highlight") Then Class.load("Highlight")
+  
+  ScriptMain.$bRunAsPlugin = True
+  
+  Dim WorkFile As String = Temp(ScriptName)
+  If Exist(Workfile) Then
+    Kill workfile
+  Endif
+  Try File.Save(WorkFile, ScriptSource)
+  If Error Then
+    Dim tmpmsg As String = ("Unable to Create Temp Workfile") & " : " & Error.text
+    Warning(tmpmsg)
+    CompileResult = -2
+    Return CompileResult
+  Endif
+  
+  Dim aParms As String[] = CompileParameters.Copy()
+  aParms.Add("gbs" & System.version, 0)
+  aParms.Push(WorkFile)
+  aParms.insert(ScriptParameters)
+   
+  CompileResult = ScriptMain.ScripterMain(aParms, NoWait, ExecPlugin, PluginParameters)
+
+ ' ScriptMain._ResetAll()
+  Return CompileResult
+  
+  Catch 
+    CompileResult = -2
+    CompileError(ScriptName, Error.where, Error.text)
+'    ScriptMain._ResetAll()
+    Return CompileResult
+    
+End

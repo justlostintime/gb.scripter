@@ -1,0 +1,22 @@
+' Gambas module file
+
+''' Called to write a message to the current error output sink.<br>
+''' Can be used by user Plugins to add information to output
+''' when the -v flag is sent as a parameter to the script being compiled.
+
+
+Export 
+
+'' Flag which can be used to set or unset verbose output
+Public $bVerboseOn As Boolean = False
+
+'' sMsg is the message to written to the  error output
+Public Sub _Call(sMsg As String)
+
+ If $bVerboseOn Then
+  Error "gbs"; System.Version; " : "; sMsg
+Endif 
+
+End
+
+

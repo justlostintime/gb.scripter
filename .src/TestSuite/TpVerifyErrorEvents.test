@@ -1,0 +1,70 @@
+' Gambas test file
+
+TestApp As String = "#Script Include=\"/etc/hostname\"\n"
+                                       "print \"Source= \" & Application.path \n"
+                                      "dim sProfile as string = tfile.load(\"hostname\")\n"
+                                      "Print sProfile\n"
+                                      "quit 2\n"
+                                      
+TestAppGood As String = "#Script Include=\"/etc/hostname\"\n"
+                                       "print \"Source= \" & Application.path \n"
+                                      "dim sProfile as string = file.load(\"hostname\")\n"
+                                      "Print sProfile\n"
+                                      "quit 2\n"
+                                      
+Eventaction As Boolean = False
+                                      
+Public Sub aCheckInclude()
+  Dim ExpectedError As String = "MMain.module:5:31: error: Unknown identifier: tfile\n"
+  Dim oMyScript As New Script As "MyScript"
+  Dim oMyNone As New Script As "BadScript"
+  Dim oMyGood As New Script As "GoodScript"
+  oMyScript.verbose = False
+  oMyScript.NoCache = True
+  oMyScript.PrintListing = False
+  oMyScript("RawTest", TestApp)
+  Dim result As Variant = oMyScript.Compile()
+  
+  EventAction = True
+  Try result = oMyScript.Compile()
+  If Error Then 
+     Assert.Equals(Error.text, ExpectedError, "Verify That Got error if event stopped:" & Error.text)
+     Assert.Equals(ScriptCompileErrors().text, ExpectedError, "Check if Compile error is still on error stack")
+  Endif
+  
+  oMyNone("Raw2", TestApp)
+  Try result = oMyNone.compile()
+  If Error Then 
+   Assert.Equals(Error.text, ExpectedError, "Verify error if no event Handler:" & Error.text)
+   Assert.Equals(ScriptCompileErrors().text, ExpectedError, "Check if Compile error is still on error stack 2")
+  Endif
+  
+  oMyGood("Raw3", TestAppGood)
+  result = oMyGood.Compile()
+  If Error Then 
+    Assert.Fail("There should have been a good compile")
+  Endif
+  
+  If result Then 
+     result = oMyGood.Run()
+     Assert.Equals(result, 2, "Verify that script executed to the end")
+  
+     result = oMyGood.RunGetResponse()
+    Dim sLines As String[] = Split(result, "\n")
+    Assert.Equals(Left(sLines[0], 7), "Source=", "Verify Source :" & Right(sLines[0], -7))
+    Assert.Equals(sLines[1], System.host, "Verify the included file can be read")
+Endif 
+
+Catch 
+   Assert.Equals(Error.text, ExpectedError, "Bad Should not get to catch  Got error if event stopped:" & Error.text)
+End' Gambas test file
+
+Public Sub MyScript_CompileErrors(err As CompileErrorMsg)
+
+  If eventAction Then 
+      Stop Event
+      Return 
+  Endif
+  Assert.Equals(err.text, "MMain.module:5:31: error: Unknown identifier: tfile\n", "Verify Event occurs:" & err.text)
+
+End

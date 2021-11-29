@@ -1,0 +1,53 @@
+' Gambas module file
+
+''' Allow user to define keyword filter, this allows the ability  to prevent certain functions from
+''' being used inside a script file. This only applies to Script Plugins.<br>
+''' This filter set is a set of regular expressions which will be used to match program lines.<br>
+''' Entry would be : <br>
+''' <p style = "margin-left: 40px">
+''' <code>
+'''       "Message if matched":"Regular expression"
+''' </code></p><br>
+''' Example:<br>
+''' <p style = "margin-left: 40px">
+''' <code>
+'''  "File Write not permitted":\"\*Open\* For \*Write\"
+''' </code></p><br>
+''' to prevent opening a file for or input output would look like.
+
+Export 
+
+'' Set the keyword filter
+Public Sub _Call(KeyManagement As Collection)
+  
+  If IsNull(KeyManagement) Then 
+     Reader.ScriptFilter.Clear()
+     Return
+  Endif
+  
+  If Not Class.IsLoaded("RegExp") Then 
+    Try Component.Load("gb.pcre")
+    If Error Then 
+        Warning(("Component gb.pcre not found, filter will be ignored"))
+        Return 
+    Endif
+    Try Class.Load("RegExp")
+    If Error Then 
+      Warning(("Unable to load regexp, filter will be ignored"))
+      Return
+    Endif
+    Reader.ScriptFilter = KeyManagement
+  Else 
+    Reader.ScriptFilter = KeyManagement
+  Endif
+  
+End
+
+'' Clear the Script Filters
+Public Sub Clear()
+  
+  Reader.ScriptFilter.Clear()
+  
+End
+
+

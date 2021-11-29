@@ -1,0 +1,14 @@
+' Gambas class file
+
+'' This class is used by the script class to compile scripts and get the args for
+'' the exec command
+Public Sub _call(aArgs As String[], Optional NoWait As Boolean, ExecParms As String[]) As String[]
+' do this so the compiler does not complain about unused variables
+  Dim MyWait As Boolean
+  Dim MyParms As String[]
+  MyWait = NoWait
+  MyParms = ExecParms
+  
+  Return aArgs
+  
+End

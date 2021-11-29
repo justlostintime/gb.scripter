@@ -1,0 +1,11 @@
+' Gambas module file
+
+''' This is the module which executes or loads the script or plugin
+''' It is used by every other Scripter interface to compile script code.
+
+Public Sub Main() As Integer
+
+    Return ScriptMain.ScripterMain(Args.all)
+    
+End' Gambas module file
+

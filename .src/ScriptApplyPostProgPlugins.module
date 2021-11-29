@@ -1,0 +1,40 @@
+' Gambas module file
+
+''' Apply each of the Program level Post process Plugins<br>
+''' listed in the Post Program  Plugin table to the provided program.\
+''' The Script source is provided as a string[] array to be processed.\
+''' See ScriptSetPostProcessPlugin for table details.\
+''' This function is also called by reader.tokenize After each file is included into
+''' the source which will be compiled.\
+''' **NOTE:**\
+''' > When This plugin changes a script line it must also update the Symbol,\
+''' > Type and position arrays for this line by calling highlight for the line\
+''' > and updating the related entries.\
+''' > This is only important if there is more that one Post Process plugin.\ 
+''' \
+''' Public Sub ScriptPostProgPlugins(sProgram As String\[\], \[ProgramSymbols As String\[\]\[\], ProgramTypes As Integer\[\]\[\], ProgramPositions As Integer\[\]\[\]\])\
+''' \
+''' Apply the Post Process Program level Plugins\
+''' sProgram is an array of script lines.\
+''' ProgramSymbols, is an array of string arrays of sysmbols, One element per program line\
+''' ProgramTypes is an array of arrays of symbol types. One element per program line\
+''' ProgramPositions is an array of arrays of the position of eash symbol in the program line\
+''' Returns nothing, Plugin may modify collections\
+
+Export
+
+'' Apply the Post Process Program level Plugins<br>
+'' sProgram is an array of script lines.<br>
+'' ProgramSymbols, is an array of string arrays of sysmbols, One element per program line<br>
+'' ProgramTypes is an array of arrays of symbol types. One element per program line<br>
+'' ProgramPositions is an array of arrays of the position of eash symbol in the program line<br>
+'' Returns nothing, Plugin may modify collections<br>
+Public Sub _call(sProgram As String[], Optional ProgramSymbols As String[][] = Null, ProgramTypes As Integer[][] = Null, ProgramPositions As Integer[][] = Null)
+  
+  If ScriptSetPostProcessPlugins.HasPlugins() Then 
+     For Each oPreProc As Object In Reader.PostProgramPlugins
+       sProgram = oPreProc.PostProcessProgram(sProgram, ProgramSymbols, ProgramTypes, ProgramPositions)
+     Next
+  Endif
+  
+End

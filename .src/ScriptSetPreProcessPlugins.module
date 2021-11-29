@@ -1,0 +1,57 @@
+' Gambas module file
+
+''' Pre Process Call Backs are called by the Scripter<br>
+'''   Before the Code Is processed<br>
+'''   Before the line is processed<br>
+''' The Plugin is to an object with the following entry points<br>
+'''   Public sub PreProcessProgram(Program as string[]) string[]<br>
+'''   Public Sub PreProcessLine(sLine as string) as string<br>
+'''
+''' It is important to note that the PreProcessing will follow the order found
+''' in the PreProcessTables
+
+Export
+
+'' This function sets the list of pre-process call backs<br>
+'' it has two input lists, one for the program call backs<br>
+'' and one for the line call backs
+Public Sub _call(PreProgramCalls As Object[], PreLineCalls As Object[])
+  
+  If PreProgramCalls.count > 0 Then 
+    Reader.PreProgramPlugins.Insert(PreProgramCalls)
+  Endif
+  
+  If PreLineCalls.count > 0 Then 
+    Reader.PreLinePlugins.Insert(PreLineCalls)
+  Endif
+  
+End
+
+'' This functions Returns a boolean true if
+'' there are Program level pre-process Plugins.
+Public Sub HasProgramPreProcess() As Boolean
+  
+  If Reader.PreProgramPlugins.count > 0 Then Return True
+  Return False
+  
+End
+
+'' This functions Returns a boolean true if
+'' there are line level pre-process Plugins
+Public Sub HasLinePreProcess() As Boolean
+  
+  If Reader.PreLinePlugins.count > 0 Then Return True
+  Return False
+  
+End
+
+'' This Function Clears all pre-process tables
+Public Sub Clear()
+  
+  Reader.PreLinePlugins.Clear()
+  Reader.PreProgramPlugins.Clear()
+  
+End
+
+
+

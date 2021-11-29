@@ -1,0 +1,29 @@
+' Gambas module file
+
+''' Apply each of the Line level Plugins\
+''' listed in the line Plugin table to the provided program\
+''' See ScriptSetPreProcessPlugin for more details regarding
+''' the table format.\
+''' This function is also called by the reader.Tokenize before tokenizing the
+''' script line.\
+''' \
+''' Public Sub _call(sLine As String) As String\
+''' \
+''' Apply each of the entries in the PreLinePlugins table
+''' to the code line provided.
+''' Return the updated text.
+Export
+
+'' Apply each of the entries in the PreLinePlugins table
+'' the the code line provided
+Public Sub _call(sLine As String) As String
+  
+  If ScriptSetPreProcessPlugins.HasLinePreProcess() Then 
+     For Each oPreProc As Object In Reader.PreLinePlugins
+       sLine = oPreProc.PreProcessLine(sLine)
+     Next
+  Endif
+  
+  Return sLine
+  
+End

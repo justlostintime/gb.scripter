@@ -1,0 +1,13 @@
+' Gambas module file
+Public Sub Main()
+If args.count < 2 then
+Print "Hello World"
+Else
+Dim PrtMessage as string[] = args.all
+PrtMessage.delete(0)
+Print PrtMessage.join()
+Endif
+Quit 0
+Catch
+Print Error.text;;error.where
+End

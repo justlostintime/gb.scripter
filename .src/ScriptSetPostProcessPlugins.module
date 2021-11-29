@@ -1,0 +1,40 @@
+' Gambas module file
+
+''' Post Process of Script as a whole After it is compiled.<br>
+''' This is called after the Script has been processed
+''' and before the compiler is called.
+
+Export 
+
+''  Called to set up the post process table.<br>
+''  Each element of the table is called in order, in the
+''  post program process phase.
+''  Note:
+''     Successive calls to this function
+''  are cumulative. Always adding new functions to the end of the list.
+Public Sub _call(PostProgPlugins As Object[])
+  
+  If PostProgPlugins.count > 0 Then 
+    Reader.PostProgramPlugins.Insert(PostProgPlugins)
+  Endif
+  
+End
+
+
+'' Clears the list of post process Plugins
+Public Sub clear()
+  
+  Reader.PostProgramPlugins.Clear()
+  
+End
+
+'' Returns a boolean true if there are Post process call backs
+Public Sub HasPlugins() As Boolean
+  
+  If Reader.PostProgramPlugins.count > 0 Then Return True
+  Return False
+  
+End
+
+
+

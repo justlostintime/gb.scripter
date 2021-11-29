@@ -1,0 +1,57 @@
+' Gambas module file
+
+''' Apply the keyword filter to the passed in source line<br>
+''' This is an initial implementation, should maybe allow some sort of
+''' call to plugins or such, but for now just a bunch of 
+''' regular expressions.<br>
+''' Will causes a compile error if any of the filters matches source line
+''' This will only return if no matches are found.<br>
+''' This is a separate module so as not to load the gb.prc module if not used by the scripter.<br>
+''' This is expensive the first time a plugin script is processed but of course does not<br>
+''' effect the cached plugins that have been created, as they are not processed again.
+
+Export
+
+Class RegExp
+Private $bNoRegexp As Boolean = True
+
+Public Sub _init()
+  
+  If Not Component.IsLoaded("gb.pcre") Then 
+     Try Component.Load("gb.pcre")
+     If Error Then 
+       Warning(("Unable to load the gb.pre component, KeyWord Filter processing will be ignored\nIs it installed?"))
+       Return
+     Endif
+  Endif
+  
+  If Not Class.IsLoaded("RegExp") Then 
+    Try Class.Load("RegExp")
+    If Error Then 
+      Warning(("Unable to load class regexp, KeyWord Filter processing will be ignored"))
+      Return
+    Endif
+  Endif
+  
+  $bNoRegexp = False
+End
+
+'' Called to apply all Filter patterns to a source line
+Public Sub _Call(sLine As String, KeywordPatternTable As Collection, iLine As Integer, sPath As String) As Boolean
+
+  If $bNoRegExp Then Return
+  Dim Havematch As Boolean = False
+  For Each Pattern As String In KeywordPatternTable
+    Verbose(Subst(("Script Apply Filter") & " : &1 > &2::&3", Quote(KeywordPatternTable.key), Quote(Pattern), Quote(sLine)))
+    If RegExp.Match(sLine, Pattern, RegExp.caseless) Then 
+      Verbose(Subst(("Script Filter Match") & " : '&1' : '&2' : '&3'", sPath, iLine, sLine))
+      warning(("Script Filter") & " : " & KeywordPatternTable.key, True)
+      CompileError(sPath, iline, KeywordPatternTable.key, False)            ' add this to the list of errors but dont halt yet
+      HaveMatch = True
+    Endif
+  Next
+  
+  Return HaveMatch
+  
+End
+

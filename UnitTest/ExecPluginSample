@@ -1,0 +1,33 @@
+
+ Public Sub _Call(aArgs As String[], nowait As Boolean,Optional MyParameters as variant[] = []) As Variant
+      Dim Result As Variant = 0
+      Dim ProgramOutputText as string = "Sample,"
+      Dim UsrMessage as string = ""
+      Dim ParametersList as string = ""
+      
+     If NoWait Then
+       UsrMessage &= "NoWait : "
+       result = Exec aArgs For Read as "myprocess"
+       result.wait()
+       result = result.value
+     Else
+       UsrMessage &= "Wait : "
+       Exec aArgs To ProgramOutputText
+       result = process.lastvalue
+     Endif
+     
+     if MyParameters.count > 0 Then
+       for each v as variant in MyParameters
+         ParametersList &= str(v)
+       next
+     endif
+     Return UsrMessage & str(result) & " Akin to magic" & ParametersList
+ End
+ 
+ public sub myprocess_read()
+    Dim  ProgramOutputText as string = ""
+    while lof(last)
+       ProgramOutputText &= read #last,-254
+    wend
+    
+ end
