@@ -1,8 +1,7 @@
 # Gambas Project File 3.0
 Title=gb.scripter
 Startup=GBS3MAIN
-UseTerminal=1
-Version=3.16.90
+Version=3.17.0
 Component=gb.image
 Component=gb.eval
 Component=gb.eval.highlight
@@ -10,8 +9,6 @@ Component=gb.util
 Component=gb.xml
 Description="Scripter Component, execute scripts and load script based plugins"
 Authors="Fabien Bodard, Benoit Minisini, Brian G"
-Arguments=[["--help"],["--use","'gb.notify,gb.web'","-e","For i as Integer = 0 To 10:Print \"Hello World\":Next"],["~/bin/who"],["-c","-T","~/bin/mytest"],["-v","TestApp"],["--verbose","TestAppWithMain"],["--verbose","TestLazyApp"],["-c","~/testerror.gbs"],["~/Scripts/TestQuoteAtEnd"],["-c","~/Scripts/AForm"],["-c","-v","-w","~/Scripts/GambasHelpSearch"],["-c","-v","-w","~/Scripts/AMain"],["-c","-v","-w","~/Scripts/gshoutput"],["-c","-v","-w","~/Scripts/TestSets/TestWebApp.gbs"],["--convert-project","~/Projects/TestPrograms/testerror"],["-v","--convert-project","~/Projects/TestPrograms/testusingtxthighlight","~/Scripts/TestSets"],["-c","-v","~/Scripts/TestSets/testusingtxthighlight.gbs"],["-l","library"],["-c","-v","-w","~/Scripts/TestScripterNoMain"],["-c","-v","-w","~/Scripts/TestGUI.gbs"],["-c","-v","-w","~/Scripts/TestSets/CPU_Test.gbs"],["-c","-v","-w","~/Scripts/TestSets/TestWebPage.gbs"],["-c","-v","-w","--convert-script","~/Scripts/TestSets/CPU_Test.gbs","~/Scripts"],["-c","-v","-w","~/Scripts/CPU_Test"],["-c","-v","-w","-p","~/Scripts/TestPlugin","~/myplugins"],["-c","-v","-w","~/Scripts/RunComponent"],["-c","-v","-w","~/Scripts/TestTestAppIncludes"],["-v","~/Projects/TestTimer"],["-c","-v","-w","~/gbs3testwithclass.gbs"],["-c","-v","-w","/home/brian/Scripts/testLocalStatic.gbs"],["-c","-v","-w","TestExternStructNoMain.gbs"],["-c","-v","-w","TestExternStructWithMain.gbs"],["-c","-v","~/Scripts/testloop.gbs"]]
-CurrentArgumentList=["-v","--convert-project","~/Projects/TestPrograms/testusingtxthighlight","~/Scripts/TestSets"]
 TabSize=2
 Translate=1
 Language=en_US
@@ -34,3 +31,4 @@ Groups=mageia:"Development/Other"
 Groups=slackware:"Development/Libraries"
 Groups=suse:"Development/Libraries/Other"
 Groups=ubuntu:"libs"
+useterminal=1

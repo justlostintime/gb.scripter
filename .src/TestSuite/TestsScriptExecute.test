@@ -1,0 +1,11 @@
+' Gambas test file
+
+Public Sub TestExecution()
+Dim result As Integer
+ result = ScripterExecute("MyScript", "Public a as integer = 9\nenum aa,bb,cc\nfor i as integer = 0 to 10\nprint \"hello\";; i\nnext\nPrint \"Global Value = \";a,aa,bb,cc")
+  If Result <> 0 Then
+           For Each err As CompileErrorMsg In ScriptCompileErrors
+             Print err.text
+           Next
+  Endif
+End

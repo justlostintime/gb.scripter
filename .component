@@ -1,6 +1,6 @@
 [Component]
 Key=gb.scripter
-Version=3.16.90
+Version=3.17.0
 Authors=Fabien Bodard, Benoit Minisini, Brian G
 Needs=XML
 Requires=gb.eval,gb.eval.highlight,gb.xml,gb.util

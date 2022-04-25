@@ -5,7 +5,7 @@
 
 Public Sub Main() As Integer
 
-    Return ScriptMain.ScripterMain(Args.all)
-    
+  Return ScriptMain.ScripterMain(Args.all)
+
 End' Gambas module file
 
