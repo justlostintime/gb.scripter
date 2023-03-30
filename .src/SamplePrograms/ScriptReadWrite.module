@@ -10,42 +10,44 @@ Public Sub main()
   GlobalScript.RunReadWrite("wait")
   Wait 0.01
   GlobalScript.write("This Is A Message")
-  
+
   While GlobalScript.state = Process.Running
     Wait 0.01
   Wend
-  
-  If GlobalScript.value = 0 Then 
-     Print "Check that the process ended ok"
-  Else 
-      Print GlobalScript.value, "Failed"
+
+  If GlobalScript.value = 0 Then
+    Print "Check that the process ended ok"
+  Else
+    Print GlobalScript.value, "Failed"
   Endif
-  
+
   Dim ReturnedSet As String[] = Split(GlobalBuffer, "\n", "\"\"", True)
-  
+
   Print "Set : "; ReturnedSet.Join()
-  
+
 End
 
 Public Sub MyTestRead_read(pid As Process)
+
   Dim MYPid As Process
   Dim buffer As String
+
   MyPid = pid
   buffer = GlobalScript.Read()
   GlobalBuffer &= buffer
-  
+
 End
 
 Public Sub MyTestRead_kill(pid As Process)
-  
+
   Print "Script ended with "; pid.value
-  
+
 End
 
 Public Sub MyTestRead_error(err As String, pid As Process)
-  
+
   Print pid.id;; ":";; err
-  
+
 End
 
 

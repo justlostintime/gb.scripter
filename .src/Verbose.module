@@ -5,7 +5,7 @@
 ''' when the -v flag is sent as a parameter to the script being compiled.
 
 
-Export 
+Export
 
 '' Flag which can be used to set or unset verbose output
 Public $bVerboseOn As Boolean = False
@@ -13,9 +13,9 @@ Public $bVerboseOn As Boolean = False
 '' sMsg is the message to written to the  error output
 Public Sub _Call(sMsg As String)
 
- If $bVerboseOn Then
-  Error "gbs"; System.Version; " : "; sMsg
-Endif 
+  If $bVerboseOn Then
+    Error "gbs"; System.Version; " : "; sMsg
+  Endif
 
 End
 

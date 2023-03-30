@@ -40,29 +40,29 @@ Public Sub _Call($oContext As Context, sLine As String, sPrjPath As String)
   '       aDims.Add(sI)
   '     Endif
   '   Next
-  ' 
+  '
   '   sCode = sNew
-  ' 
+  '
   ' Endif
 
   'scode = "Public Sub Main()\n" & aDims.Join("\n") & "\n" & sCode
- '  scode = "Public Sub Main()\n" & sCode & "\nEnd\n"
+  '  scode = "Public Sub Main()\n" & sCode & "\nEnd\n"
 
- ' $oContext.$sFinalProgram &= sCode
- 
- 
+  ' $oContext.$sFinalProgram &= sCode
+
+
 End
 
 'Public Function PrecompileLine(sLine As String) As String
-' 
+'
 '   Dim sVar As String
 '   Dim sType As String
 '   Dim sDecl As String
 '   Dim aSymbols As String[] = Highlight.Analyze(sline, True)
 '   Dim aTypes As Integer[] = highlight.types
-' 
+'
 '   For i As Integer = 0 To aSymbols.Max
-' 
+'
 '     If aTypes[i] = highlight.symbol And If aSymbols[i].len = 3 And If (aSymbols[i][0] = "{" And aSymbols[i][2] = "}") And If i + 1 <= aSymbols.max And If aTypes[i + 1] = Highlight.Symbol Then
 '       If $cNativeTypes.Exist(aSymbols[i][1]) Then
 '         sType = $cNativeTypes[aSymbols[i][1]]
@@ -80,13 +80,13 @@ End
 '       Endif
 '     Endif
 '   Next
-' 
+'
 '   For i = 0 To aSymbols.max
 '     If aTypes[i] = Highlight.symbol And If aSymbols[i].len = 3 And If (aSymbols[i][0] = "{" And aSymbols[i][2] = "}") Then
 '       sLine = Replace(sline, aSymbols[i], "")
 '     Endif
 '   Next
-' 
+'
 '   Return sLine
-' 
+'
 ' End

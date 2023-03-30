@@ -8,18 +8,20 @@
 ''' \
 ''' Public Sub _Call(sPath As String, iLine As Integer, sMessage As String, [HaltCompile as boolean])
 
-Export 
+Export
 
 '' Called by application to report an error and call error.raise<br>
 '' Iline is the program line in error.<br>
 '' sMessage is the message attached to the error being raised<br>
 '' sPath is the path to the file containing the error
 Public Sub _Call(sPath As String, iLine As Integer, sMessage As String, Optional HaltCompile As Boolean = True)
+
   Dim ErrorMessage As String = File.Name(Args[0]) & ": " & sPath & "." & iLine & ": " & sMessage
-  If ScriptMain.$bRunAsPlugin Then 
+
+  If ScriptMain.$bRunAsPlugin Then
     ScriptCompileErrors[0] = ErrorMessage
   Endif
-  
+
   If HaltCompile Then Error.Raise(ErrorMessage)
 
 End ' Gambas module file

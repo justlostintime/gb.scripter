@@ -5,9 +5,9 @@
 ''' <p style="margin-left: 40px">
 ''' <code>
 '''       Static Public Sub ScripterExecute( ScriptName As String, ScriptSource As String,\
-'''                            Optional CompileParameters As String[] = [], 
-'''                                     ScriptParameters As String[] = [], 
-'''                                     NoWait as Boolean = FALSE, 
+'''                            Optional CompileParameters As String[] = [],
+'''                                     ScriptParameters As String[] = [],
+'''                                     NoWait as Boolean = FALSE,
 '''                                     ExecPlugin as Object = NULL) As Variant.
 ''' </code></p><br>
 ''' The extra input Script name is used to create the
@@ -30,7 +30,7 @@
 ''' </code></p><br>
 ''' It will be this object's responsibility to EXEC and manage the script during its execution.\
 ''' The Simplest Object definition being:\
-''' 
+'''
 ''' <code>
 ''' Public Sub _Call(aArgs as string[], nowait as boolean) as variant
 '''      Dim Result as variant = 0
@@ -55,13 +55,13 @@ Static Public Sub _call(ScriptName As String, ScriptSource As String, Optional C
 
   ScriptMain._ResetAll()
   ScriptCompileErrors.Clear()
-  
+
   If Not Component.IsLoaded("gb.eval") Then Component.Load("gb.eval")
   If Not Class.IsLoaded("ScriptMain") Then Class.load("ScriptMain")
   If Not Class.IsLoaded("Highlight") Then Class.load("Highlight")
-  
+
   ScriptMain.$bRunAsPlugin = True
-  
+
   Dim WorkFile As String = Temp(ScriptName)
   If Exist(Workfile) Then
     Kill workfile
@@ -73,21 +73,21 @@ Static Public Sub _call(ScriptName As String, ScriptSource As String, Optional C
     CompileResult = -2
     Return CompileResult
   Endif
-  
+
   Dim aParms As String[] = CompileParameters.Copy()
   aParms.Add("gbs" & System.version, 0)
   aParms.Push(WorkFile)
   aParms.insert(ScriptParameters)
-   
+
   CompileResult = ScriptMain.ScripterMain(aParms, NoWait, ExecPlugin, PluginParameters)
 
- ' ScriptMain._ResetAll()
+  ' ScriptMain._ResetAll()
   Return CompileResult
-  
-  Catch 
-    CompileResult = -2
-    CompileError(ScriptName, Error.where, Error.text)
-'    ScriptMain._ResetAll()
-    Return CompileResult
-    
+
+Catch
+  CompileResult = -2
+  CompileError(ScriptName, Error.where, Error.text)
+  '    ScriptMain._ResetAll()
+  Return CompileResult
+
 End

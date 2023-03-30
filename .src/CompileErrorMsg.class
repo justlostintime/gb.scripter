@@ -16,17 +16,18 @@ Public text As String = ""                '' The original message returned by th
 '' New object CompileErrorMsg created
 '' Sample input  "MMain.module:7:7: error: Unknown identifier: Prints\n"
 Public Sub _new(ErrorAsText As String)
+
   Verbose("Creating error Mesaage:" & ErrorAsText)
   Dim fields As String[] = Split(ErrorAsText, ":", "\"\"", True)
-  
+
   If fields.count >= 1 Then Try FileName = fields[0]
   If fields.count >= 2 Then Try LineNumber = fields[1]
   If fields.count >= 3 Then Try Position = fields[2]
   If fields.count >= 4 Then Try msgType = Trim(fields[3])
-  If fields.count >= 5 Then 
-        Try Message = Trim(fields.Extract(4, -1).Join(":"))
+  If fields.count >= 5 Then
+    Try Message = Trim(fields.Extract(4, -1).Join(":"))
   Endif
-  
+
   text = ErrorAsText
-  
+
 End
