@@ -41,7 +41,7 @@ Public $bTrace As Boolean                                      ' Turns on tracin
 Public $bTerseListing As Boolean                               ' limit the output from a script error
 Public $bCreateProject As Boolean                              ' Create a project from the script file
 Public $bPlugin As Boolean                                     ' if true then generate a plugin, class with script name and _Call() as the entry point
-                                                               ' can be loaded with component.load followed by class.load both with the basename of the script
+' can be loaded with component.load followed by class.load both with the basename of the script
 
 '' Reset all internal tables and conditions
 '' Used for Test harness
@@ -55,14 +55,14 @@ Public Sub _ResetAll()
   '$sClassDefinition = ""
 
   If $bHasComponents Then
-      CComponent.Clear()
-      $bHasComponents = False
+    CComponent.Clear()
+    $bHasComponents = False
   Endif
   If $bHasLibraries Then
-      Libraries.Clear()
-      $bHasLibraries = False
+    Libraries.Clear()
+    $bHasLibraries = False
   Endif
-  
+
   ' GenerateFilesFromArgs.$aVarsDecl.Clear()                                  ' Changed from string[]
   $bWebPage = False
   $bBuildOnly = False                                ' add support to have scripter build the project only and print out the source files if verbose set

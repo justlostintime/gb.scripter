@@ -6,7 +6,7 @@
 ''' The returned object may be called directly.<br>
 ''' <p style="margin-left: 40px">
 ''' <code>
-''' Static Public Sub ScripterPlugin( ScriptPath As String, 
+''' Static Public Sub ScripterPlugin( ScriptPath As String,
 '''                            Optional CompileParameters As String[] = [],
 '''                                     PluginNewParameters As Variant[] = Null ) As Variant
 ''' </code></p><br>
@@ -34,7 +34,7 @@
 ''' myPlugin()
 ''' </code></p><br
 
-Export 
+Export
 
 '' Contains any error returned from the Gambas compiler
 '' The Text error is available through ScriptCompileError()
@@ -45,53 +45,57 @@ Static Public CompileResult As Integer = 0
 '' Returns an Gambas object upon successful build and load of the plugin<br>
 '' Returns Null upon failure
 Static Public Sub _call(ScriptPath As String, Optional CompileParameters As String[] = [], PluginNewParameters As Variant[] = Null) As Variant
-   Dim PluginClass As Class
-   Dim PluginObject As Object
-   
-   ScriptMain._ResetAll()
-   ScriptCompileErrors.Clear()
-   
-   If Not Component.IsLoaded("gb.eval") Then Component.Load("gb.eval")
-   If Not Class.IsLoaded("ScriptMain") Then Class.load("ScriptMain")
-   If Not Class.IsLoaded("Highlight") Then Class.load("highlight")
-   
-   ScriptMain.$bRunAsPlugin = True
-   
-   Dim aParms As String[] = CompileParameters.Copy()
-   aParms.Add("gbs" & System.version, 0)
-   aParms.Push("-p")
-   aParms.Push(ScriptPath)
-   CompileResult = ScriptMain.ScripterMain(aParms)
-   If CompileResult <> 0 Then 
-      Warning("Plugin Compile Failed :" & ScriptMain.$sLastCompileError)
-      ScriptMain._ResetAll()
-      Return Null
-   Endif
-   
-   Try Component.Load(ScriptMain.$sExecutable)
-   Try PlugInClass = Class.Load(ScriptMain.$sStartUpClass)
-   If IsNull(PluginNewParameters) Then
-      PlugInObject = PluginClass.New()
-   Else 
-      PlugInObject = PluginClass.New(PlugInNewParameters)
-   Endif 
-   ScriptMain._ResetAll()
-   Return PluginObject
+
+  Dim PluginClass As Class
+  Dim PluginObject As Object
+
+  If Not Component.IsLoaded("gb.eval") Then Component.Load("gb.eval")
+  If Not Class.IsLoaded("ScriptMain") Then Class.load("ScriptMain")
+  If Not Class.IsLoaded("Highlight") Then Class.load("highlight")
+
+  ScriptMain._ResetAll()
+  ScriptCompileErrors.Clear()
+
+  ScriptMain.$bRunAsPlugin = True
+
+  Dim aParms As String[] = CompileParameters.Copy()
+  aParms.Add("gbs" & System.version, 0)
+  aParms.Push("-p")
+  aParms.Push(ScriptPath)
+  CompileResult = ScriptMain.ScripterMain(aParms)
+  If CompileResult <> 0 Then
+    Warning("Plugin Compile Failed :" & ScriptMain.$sLastCompileError)
+    ScriptMain._ResetAll()
+    Return Null
+  Endif
+
+  Try Component.Load(ScriptMain.$sExecutable)
+  Try PlugInClass = Class.Load(ScriptMain.$sStartUpClass)
+  If IsNull(PluginNewParameters) Then
+    PlugInObject = PluginClass.New()
+  Else
+    PlugInObject = PluginClass.New(PlugInNewParameters)
+  Endif
+  ScriptMain._ResetAll()
+  Return PluginObject
+
 End
 
 '' Allow a user to provide a string program and build it<br>
 '' Returns an Gambas object upon successful build and load of the plugin<br>
 '' Returns Null upon failure
 Static Public Sub FromString(PluginName As String, Program As String, Optional CompileParameters As String[] = [], PluginNewParameters As Variant[] = Null) As Variant
-  
+
   Dim WorkFile As String = Temp(PluginName)
+
   Try File.Save(WorkFile, Program)
-  If Error Then 
+  If Error Then
     Dim CompileErrorText As String = ("Unable to Create Temp Workfile") & " : " & Error.text
     CompileError(PluginName, 0, CompileErrorText)
   Endif
-  
+
   Return _call(WorkFile, CompileParameters, PluginNewParameters)
+
 End
 
 
@@ -100,9 +104,11 @@ End
 '' onto stdout. This can also be done through the -v option on the call to
 '' ScriptPlugin()
 Static Public Sub SetVerbose()
-If Verbose.$bVerboseOn = True Then 
-  Verbose.$bVerboseOn = False
-Else 
-  Verbose.$bVerboseOn = True
-Endif
+
+  If Verbose.$bVerboseOn = True Then
+    Verbose.$bVerboseOn = False
+  Else
+    Verbose.$bVerboseOn = True
+  Endif
+
 End

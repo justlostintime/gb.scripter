@@ -14,7 +14,7 @@ Public $bVerboseOn As Boolean = False
 Public Sub _Call(sMsg As String)
 
   If $bVerboseOn Then
-    Error "gbs"; System.Version; " : "; sMsg
+    Error "gb.scripter"; System.Version; " : "; sMsg
   Endif
 
 End

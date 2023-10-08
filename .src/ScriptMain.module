@@ -351,7 +351,7 @@ Public Sub ScripterMain(aArgs As String[], Optional NoWaitComplete As Boolean = 
       verbose(("Execution Time") & " = " & CStr(Timer - starttime))
 
       If Process.LastState = Process.Crashed Then
-        Warning(("Script had Segmentation fault, Code") & "=" & Process.LastValue, True)
+        Warning(("GB.Script had Segmentation fault, Code") & "=" & Process.LastValue, True)
       Endif
 
       If $oContext.$bTestMode Or If $bRunAsPlugin Then

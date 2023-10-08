@@ -28,7 +28,7 @@
 '''  These properties are read/write\
 '''  #Script      Property=MyProp:"MyPropValue"\
 '''  Example: #Script Property=TAG:"MoveMotor "\
-Export 
+Export
 
 
 
@@ -56,7 +56,7 @@ Public hasOptions As Boolean = False
 '' Each entry in this table will copy a file to the project directory
 '' will be refrenced in the code by name only
 '' Primarily used when converting a script to a project
-Public PublicFiles As New String[] 
+Public PublicFiles As New String[]
 
 '' Is a list of read only the Properties associated with the plugin Script
 Public ProjectInfo As Collection
@@ -66,13 +66,13 @@ Public PropertyRW As New String[]
 
 Private Enum eType, eVersion, eDescription, eMaintainer, eAuthor, eVendor, eLicense, eInstall, eTitle, eName, eNotFound, eIgnored, eStartup, eUseHttpServer, ePublic, eProperty, eError, eScript
 ' On  Goto SYMTYPE, SYMVERSION, SYMDESCRIPTION, SYMMAINTAINER, SYMAUTHORS, SYMVENDOR, SYMLICENSE, SYMINSTALL, SYMTITLE, SYMNAME, SYNOTFOUND, SYMIGNORED, SYMSTARTUP
-Private KeyWords As Collection = ["TYPE": eType, "VERSION": eVersion, "DESCRIPTION": eDescription, 
-                                 "MAINTAINER": eMaintainer, "AUTHORS": eAuthor, "AUTHOR": eAuthor, 
-                                 "VENDOR": eVendor, "LICENSE": eLicense,
-                                 "INSTALL": eInstall, "TITLE": eTitle, "NAME": eName, "ERROR": eError,
-                                 "SCRIPT": eScript, "STARTUP": eStartup, "USEHTTPSERVER": eUseHttpServer,
-                                 "INCLUDE": ePublic, "PROPERTY": eProperty]
-                                 
+Private KeyWords As Collection = ["TYPE": eType, "VERSION": eVersion, "DESCRIPTION": eDescription,
+  "MAINTAINER": eMaintainer, "AUTHORS": eAuthor, "AUTHOR": eAuthor,
+  "VENDOR": eVendor, "LICENSE": eLicense,
+  "INSTALL": eInstall, "TITLE": eTitle, "NAME": eName, "ERROR": eError,
+  "SCRIPT": eScript, "STARTUP": eStartup, "USEHTTPSERVER": eUseHttpServer,
+  "INCLUDE": ePublic, "PROPERTY": eProperty]
+
 Private CompTypes As Collection = ["LIBRARY": 0, "COMPONENT": 1, "PROGRAM": 2]
 
 Public Sub _init()
@@ -91,8 +91,8 @@ Public Sub _init()
   ProjectInfo.Add("General Public License 2.0", "License")
   ProjectInfo.Add("", "Type")
   PropertyRW.Add("Tag")
-  ProjectInfo.Add("", "Tag") 
-  
+  ProjectInfo.Add("", "Tag")
+
 End
 
 '' Reset all fields back to default
@@ -124,35 +124,35 @@ Public Sub _call(aSymbols As String[], aTypes As Integer[], LineNumber As Intege
   ' Endif
 
   While aTypes.last = Highlight.Comment Or aTypes.last = Highlight.help ' get rid Of comments
-     aTypes.Pop()
-     aSymbols.Pop()
+    aTypes.Pop()
+    aSymbols.Pop()
   Wend
-  
+
   If aSymbols.count < 2 Then Return
   For i = 1 To aSymbols.Max
     If aSymbols[i] = "," Then Continue
     PropKey = aSymbols[i]
     KeyIndex = KeyWords[Upper(aSymbols[i])]
     Inc i
-    
+
     If aSymbols[i] <> "=" Or If i + 1 > aTypes.max Or If aTypes[i + 1] <> Highlight.string And aTypes[i + 1] <> Highlight.symbol Then
-       CompileError(sPath, LineNumber, ("Invalid #Script PreProcess Command Format") & " :" & aSymbols.Join(" "))
-       Return
+      CompileError(sPath, LineNumber, ("Invalid #Script PreProcess Command Format") & " :" & aSymbols.Join(" "))
+      Return
     Endif
     Inc i
-    
-    On KeyIndex Goto SYMTYPE, SYMVERSION, SYMDESCRIPTION, SYMMAINTAINER, SYMAUTHORS, SYMVENDOR, SYMLICENSE, SYMINSTALL, SYMTITLE, SYMNAME, SYNOTFOUND, SYMIGNORED, SYMSTARTUP, 
-                                        SYMUSEHTTPSERVER, SYMPUBLIC, SYMPROPERTY
+
+    On KeyIndex Goto SYMTYPE, SYMVERSION, SYMDESCRIPTION, SYMMAINTAINER, SYMAUTHORS, SYMVENDOR, SYMLICENSE, SYMINSTALL, SYMTITLE, SYMNAME, SYNOTFOUND, SYMIGNORED, SYMSTARTUP,
+      SYMUSEHTTPSERVER, SYMPUBLIC, SYMPROPERTY
     Continue
 
   SYNOTFOUND:
-  
-    If ProjectInfo.Exist(PropKey) Then 
-         ProjectInfo[PropKey] = UnQuote(aSymbols[i])
-         Continue
-    Else 
-        CompileError(sPath, LineNumber, ("Invalid #Script PreProcess Command") & " :" & aSymbols[i])
-         Break
+
+    If ProjectInfo.Exist(PropKey) Then
+      ProjectInfo[PropKey] = UnQuote(aSymbols[i])
+      Continue
+    Else
+      CompileError(sPath, LineNumber, ("Invalid #Script PreProcess Command") & " :" & aSymbols[i])
+      Break
     Endif
 
   SYMTYPE:
@@ -207,36 +207,36 @@ Public Sub _call(aSymbols As String[], aTypes As Integer[], LineNumber As Intege
   SYMTITLE:
     ProjectInfo["Title"] = UnQuote(aSymbols[i])
     Continue
-    
+
   SYMSTARTUP:
     ProjectInfo["Startup"] = UnQuote(aSymbols[i])
     Continue
-    
+
   SYMUSEHTTPSERVER:
     ProjectInfo["UseHttpServer"] = UnQuote(aSymbols[i])
     Continue
-    
+
   SYMPUBLIC:
     Dim sPublicFilePath As String = UnQuote(aSymbols[i])
     Dim sPPATH As String = File.Dir(sPublicFilePath)
-    If sPpath = "" Then 
-        sPublicFilePath = Env["PWD"] &/ sPublicFilePath
+    If sPpath = "" Then
+      sPublicFilePath = Env["PWD"] &/ sPublicFilePath
     Endif
-    If Not Exist(sPublicFilePath) Then 
-       CompileError(sPath, LineNumber, ("Unable to find Public file") & " :" & sPublicFilePath)
+    If Not Exist(sPublicFilePath) Then
+      CompileError(sPath, LineNumber, ("Unable to find Public file") & " :" & sPublicFilePath)
     Endif
     PublicFiles.Add(sPublicFilePath)
-    Continue 
-    
-  SYMPROPERTY: ' Define a Plugin property and value Format #Script Property=Propertyname:value 
-    If aSymbols[i + 1] <> ":" Or If aTypes[i + 2] <> Highlight.String Then 
+    Continue
+
+  SYMPROPERTY: ' Define a Plugin property and value Format #Script Property=Propertyname:value
+    If aSymbols[i + 1] <> ":" Or If aTypes[i + 2] <> Highlight.String Then
       CompileError(sPath, LineNumber, ("Invalid Plugin Property Declaration"))
     Endif
     PropertyRW.Add(aSymbols[i])
     ProjectInfo[aSymbols[i]] = UnQuote(aSymbols[i + 2])
     i += 2
-    Continue 
-    
+    Continue
+
 
   SYMIGNORED:
 
@@ -267,29 +267,29 @@ End
 '' Sets the startup Class/Module for a script
 Public Sub SetStartup(StartupName As String)
 
-     ProjectInfo["Startup"] = StartUpName
-     
+  ProjectInfo["Startup"] = StartUpName
+
 End
 
 '' Returns the startup class/module for a project
 Public Sub GetStartup() As String
-  
+
   Return ProjectInfo["Startup"]
-  
+
 End
 
 '' Acts like an array of properties for the project
 Public Sub _put(value As Variant, index As String)
-  
-   ProjectInfo[index] = value
-  
+
+  ProjectInfo[index] = value
+
 End
 
 '' acts like an array of porperties of the project
 Public Sub _get(index As String) As Variant
-  
+
   Return ProjectInfo[index]
-  
+
 End
 
 

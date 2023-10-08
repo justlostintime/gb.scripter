@@ -22,11 +22,11 @@
 '''     ..............^ Not World Earth\
 '''     3   Next\
 ''' </code></p><br>
-Export 
+Export
 
 '' Create a listing from a script source, optionally with errors
 Public Sub _call(TheScript As String, Optional ErrorText As String = "", ErrorLineNumber As Integer = 0, ErrorAtPosition As Integer = 0) As String
-  
+
   Return MakeListing.GenListing(Null, TheScript, ErrorLineNumber, ErrorAtPosition, ErrorText)
 
 End

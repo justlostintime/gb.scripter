@@ -5,7 +5,6 @@
 
 Export
 
-
 Public LineNumber As Integer = 0          '' The line number the error occured on
 Public FileName As String = ""            '' The name of the file that the error occured in
 Public Position As Integer = 0            '' The position of the line that the error occured

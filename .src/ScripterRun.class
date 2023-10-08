@@ -1,6 +1,6 @@
 ' Gambas class file
 
-''' This class allows the execution of a Gambas script file directly.\ 
+''' This class allows the execution of a Gambas script file directly.\
 ''' The ScriptFile path may also point to a Gambas project directory, which will be run directly.
 ''' <p style="margin-left: 40px">
 ''' <code>
@@ -49,30 +49,30 @@ Static Public CompileResult As Variant = 0
 '' Execute a script File directly
 Static Public Sub _call(ScriptFile As String, Optional CompileParameters As String[] = [], ScriptParameters As String[] = [], NoWait As Boolean = False, ExecPlugin As Object = Null, PluginParameters As Variant[] = []) As Variant
 
-  ScriptMain._ResetAll()
-  ScriptCompileErrors.Clear()
-  
   If Not Component.IsLoaded("gb.eval") Then Component.Load("gb.eval")
   If Not Class.IsLoaded("ScriptMain") Then Class.load("ScriptMain")
   If Not Class.IsLoaded("Highlight") Then Class.load("Highlight")
-  
+
+  ScriptMain._ResetAll()
+  ScriptCompileErrors.Clear()
+
   ScriptMain.$bRunAsPlugin = True
-  
-  
+
+
   Dim aParms As String[] = CompileParameters.Copy()
   aParms.Add("gbs" & System.version, 0)
   aParms.Push(ScriptFile)
   aParms.insert(ScriptParameters)
-   
+
   CompileResult = ScriptMain.ScripterMain(aParms, NoWait, ExecPlugin, PluginParameters)
 
   'ScriptMain._ResetAll()
   Return CompileResult
-  
-  Catch 
-    CompileResult = -2
-    CompileError(ScriptFile, Error.where, Error.text)
-'    ScriptMain._ResetAll()
-    Return CompileResult
-    
+
+Catch
+  CompileResult = -2
+  CompileError(ScriptFile, Error.where, Error.text)
+  '    ScriptMain._ResetAll()
+  Return CompileResult
+
 End
