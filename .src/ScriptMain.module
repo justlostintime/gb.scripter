@@ -19,7 +19,6 @@ Public $sExecutable As String            ' Path to executable used by plugin int
 Public $sStartupClass As String          ' Name of plugin class to start
 Public $sLastCompileError As String      ' The text of the last eorror message
 
-
 Public Sub _ResetAll()
 
   $oContext._ResetAll()
@@ -108,7 +107,6 @@ Public Sub ScripterMain(aArgs As String[], Optional NoWaitComplete As Boolean = 
     Endif
 
     sName = File.Name($sPath)
-
 
     If Not $sPath Then
       verbose(("Reading from default Stdin"))
@@ -252,7 +250,6 @@ Public Sub ScripterMain(aArgs As String[], Optional NoWaitComplete As Boolean = 
       If $oContext.$bWarning Then parmstring &= "w"
       'If $oContext.$bVerbose Then Parmstring &= "v"
 
-
       Verbose(System.Path &/ "bin/gbc" & System.Version & " " & parmstring & " " & $sPrjPath & " 2>&1")
       sRes = Compile(parmstring, $sPrjPath)
       If Not Compile.GoodCompile Then
@@ -304,7 +301,6 @@ Public Sub ScripterMain(aArgs As String[], Optional NoWaitComplete As Boolean = 
       Dim ArchiveCmd As String[] = [System.Path &/ "bin/gba" & System.Version, "-o", $sArchivePath, $sPrjPath]
       If $oContext.$bVerbose Then ArchiveCmd.Add("-v", 1)
       Verbose(ArchiveCmd.Join(" "))
-
 
       Exec ArchiveCmd To sRes
 
@@ -388,7 +384,6 @@ Public Sub ScripterMain(aArgs As String[], Optional NoWaitComplete As Boolean = 
 
 End
 
-
 Public Function IsValid(sPath As String) As Boolean
 
   Dim aFileInfo As String[]
@@ -408,6 +403,3 @@ Catch
   Return False
 
 End
-
-
-

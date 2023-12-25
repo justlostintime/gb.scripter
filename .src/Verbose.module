@@ -4,7 +4,6 @@
 ''' Can be used by user Plugins to add information to output
 ''' when the -v flag is sent as a parameter to the script being compiled.
 
-
 Export
 
 '' Flag which can be used to set or unset verbose output
@@ -18,5 +17,3 @@ Public Sub _Call(sMsg As String)
   Endif
 
 End
-
-

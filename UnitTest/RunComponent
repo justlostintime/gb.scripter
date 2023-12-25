@@ -1,5 +1,5 @@
 #!/usr/bin/env -S gbs3 -c -v -w
-#Script Version="1.0.2"
+#Script Version="1.1.1"
 #Script Startup="MySelf"
 
 if not component.load(system.find("gbs3")) then
@@ -17,17 +17,17 @@ Dim TestPlugin,TestPlugin2 As Object
   If TestPlugin Then
       print TestPlugin.version
       Print TestPlugin("Element 1", 1, 2, "Element 3", "Last Item 4","MoreTests")
-  Else 
+  Else
       Print "Error in compile of plugin"
-  Endif 
-  
+  Endif
+
   TestPlugin2 = Scripter(User.home &/ "Scripts/TestPlugin2")
   If TestPlugin Then
       print TestPlugin.version
       Print TestPlugin("Element 1", 1, 2, "Element 3", "Last Item 4","MoreTests","Testtoo")
-  Else 
+  Else
       Print "Error in compile of plugin"
-  Endif 
+  Endif
 
 QUIT 0
 catch

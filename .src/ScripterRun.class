@@ -58,7 +58,6 @@ Static Public Sub _call(ScriptFile As String, Optional CompileParameters As Stri
 
   ScriptMain.$bRunAsPlugin = True
 
-
   Dim aParms As String[] = CompileParameters.Copy()
   aParms.Add("gbs" & System.version, 0)
   aParms.Push(ScriptFile)

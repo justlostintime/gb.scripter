@@ -6,7 +6,6 @@ Private aSpecial As Collection = ["STRUCT": True, "ENUM": True, "EXTERN": True, 
 
 Private $iAdjustedOffset As Integer
 
-
 Public Sub _call(oContext As Context, Program As Reader) As String
 
   aDefWords.default = False

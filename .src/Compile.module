@@ -38,10 +38,8 @@ Public Sub CompRead_read()
 
 End
 
-
 Public Sub CompRead_Error(ErrText As String)
 
   $sBuffer &= errText
 
 End
-

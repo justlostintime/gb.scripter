@@ -447,7 +447,6 @@ Private Sub TokenizeFile(SourceBuffer As String)
         sLine = "'" & sLine
         Goto ContinueRecord
 
-
       Else If symbols[0] == "#INCLUDE" Then
         ProcessInclude(symbols, atypes, sDefaultFilePath)
         Continue
@@ -525,7 +524,6 @@ Public Sub UseList() As String
   Return UseCompLibList
 
 End
-
 
 Private Sub ProcessInclude(Includes As String[], atypes As Integer[], sDefaultPath As String)
 
@@ -720,7 +718,6 @@ Public Sub _get(index As Integer, Optional SubIndex As Integer = -1, Setof As In
 
 End
 
-
 '' It is possible to enumerate over each lines symbols
 '' reader.key will always contain the current source line number.<br>
 '' The enumeration returns a table of symbol for the current source line.<br>
@@ -796,7 +793,3 @@ Public Sub DisplayWarnings()
   Next
 
 End
-
-
-
-

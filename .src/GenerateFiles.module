@@ -5,7 +5,6 @@ Public $cPublicParse As Collection = ["SUB": 0, "FUNCTION": 1, "PRODCEDURE": 2, 
 Public $cEndParse As Collection = ["STRUCT": 0, "CLASS": 1, "ENUM": 2]
 Public $cSubPars As Collection = ["MAIN": 0]
 
-
 Public Sub _Call($oContext As Context, Path As String, sPrjPath As String)
 
   Dim cReader As Reader

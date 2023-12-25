@@ -20,7 +20,6 @@ Public Sub TestLoadProject()
 
 End
 
-
 Public Sub main()
 
   TestLoadProject()
@@ -51,4 +50,3 @@ Public Sub main()
 
 End
 ' Gambas module file
-

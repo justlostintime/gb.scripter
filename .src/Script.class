@@ -76,7 +76,6 @@ Property EndOfLine As Integer
 '' It 's an equivalent of the Eof function.
 Property Read Eof As Boolean
 
-
 Property Read Handle As Integer     '' Returns the process identifier (a.k.a "pid") of the process object.
 Property Read ID As Integer         '' wiki://comp/gb/process/handle
 
@@ -111,11 +110,9 @@ Property Fast As Boolean                          '' Causes to compiler to produ
 Property PrintListing As Boolean           '' Enable listing upon error
 Property OutputArchiveLocation As String   '' Put the generated executable in a specific location not the cache directory
 
-
-
 '' Creates and compiles a new script object from a source file defined by ScriptName.\
 '' OR\
-'' if the ScriptSource is defined use ScriptNameas the cache name and compile the ScriptSource text.\
+'' if the ScriptSource is defined use ScriptName as the cache name and compile the ScriptSource text.\
 '' OR\
 '' If nothing is provided then return with initialized object, compile nothing.
 Public Sub _new(Optional ScriptName As String = "", ScriptSource As String = "")
@@ -180,8 +177,6 @@ Public Sub _unknown(...) As Variant
   Endif
 
 End
-
-
 
 '' Compile the Script defined By SourceFile Or Text.\
 '' \
@@ -375,7 +370,6 @@ Public Sub Save(Optional DestinationDirectoryPath As String = $sScriptFullPath)
 
 End
 
-
 '' Wait for the script to complete execution\
 '' Specify optionally if process will block all other events or allow other events while waiting for process to complete"\
 '' Defaults to a non blocking process.
@@ -453,7 +447,6 @@ Public Sub Watch(Mode As Integer, bWatch As Boolean)
   $pScriptProcess.Watch(mode, bWatch)
 
 End
-
 
 '' Starts execution of the script wait for the script to complete.\
 '' Return the exit code of the Script process.\
@@ -548,7 +541,6 @@ Public Sub RunGetResponse(...) As Variant
 
 End
 
-
 '' Starts Execution of the script exits with I/O setup to script.\
 '' Any number or type of argument may be passed to the script at execution time.\
 '' Arrays may be passed and will be expanded/converted to inline string elements.\
@@ -593,7 +585,6 @@ Public Sub RunReadWrite(...) As Process
 
 End
 
-
 Public Sub _ScriptIO_read()
 
   Raise Read($pScriptProcess)
@@ -605,7 +596,6 @@ Public Sub _ScriptIO_kill()
   Raise Kill($pScriptProcess)
 
 End
-
 
 Public Sub _ScriptIO_error(ErrMsg As String)
 
@@ -707,7 +697,6 @@ Private Sub BuildRuntimeArgs(aArgs As Variant[]) As String[]
 
 End
 
-
 ' Everything below this line is a return of the property from he process
 
 Private Function LastState_Read() As Integer
@@ -731,7 +720,6 @@ End
 Private Sub Blocking_Write(Value As Integer)
 
   $pScriptProcess.Blocking = value
-
 
 End
 
@@ -944,7 +932,6 @@ Private Sub RemoveOption(value As String)
 
 End
 
-
 Private Function CompileOptions_Read() As String[]
 
   Return $aCompileOptions
@@ -975,13 +962,11 @@ Private Function Text_write(Value As String)
 
 End
 
-
 Private Sub Name_Write(Value As String)
 
   $sScriptName = Value
 
 End
-
 
 Private Function SourceFile_Read() As String
 
@@ -997,7 +982,6 @@ Private Sub SourceFile_Write(Value As String)
   $sScriptName = Value
 
 End
-
 
 Private Function PrintListing_Read() As Boolean
 

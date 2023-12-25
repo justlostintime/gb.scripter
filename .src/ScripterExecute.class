@@ -49,14 +49,13 @@ Export
 '' The Text error is available through **ScriptCompileErrors()**
 Static Public CompileResult As Variant = 0
 
-
 '' Execute an in memory script from a string
 Static Public Sub _call(ScriptName As String, ScriptSource As String, Optional CompileParameters As String[] = [], ScriptParameters As String[] = [], NoWait As Boolean = False, ExecPlugin As Object = Null, PluginParameters As Variant[] = []) As Variant
 
   If Not Component.IsLoaded("gb.eval") Then Component.Load("gb.eval")
   If Not Class.IsLoaded("ScriptMain") Then Class.load("ScriptMain")
   If Not Class.IsLoaded("Highlight") Then Class.load("Highlight")
-  
+
   ScriptMain._ResetAll()
   ScriptCompileErrors.Clear()
 

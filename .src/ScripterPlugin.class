@@ -40,7 +40,6 @@ Export
 '' The Text error is available through ScriptCompileError()
 Static Public CompileResult As Integer = 0
 
-
 '' Default call to this class requires a file name to be loaded as a plugin into the application<br>
 '' Returns an Gambas object upon successful build and load of the plugin<br>
 '' Returns Null upon failure
@@ -97,7 +96,6 @@ Static Public Sub FromString(PluginName As String, Program As String, Optional C
   Return _call(WorkFile, CompileParameters, PluginNewParameters)
 
 End
-
 
 '' Turn on verbose info during plugin compile\
 '' A wealth of debug and warning information will be displayed\

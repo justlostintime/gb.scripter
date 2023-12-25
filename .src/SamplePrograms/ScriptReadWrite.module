@@ -49,6 +49,3 @@ Public Sub MyTestRead_error(err As String, pid As Process)
   Print pid.id;; ":";; err
 
 End
-
-
-

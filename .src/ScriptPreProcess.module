@@ -30,8 +30,6 @@
 '''  Example: #Script Property=TAG:"MoveMotor "\
 Export
 
-
-
 '' Indicates that the Script being processed is a library
 Public isLibrary As Boolean = False
 
@@ -237,7 +235,6 @@ Public Sub _call(aSymbols As String[], aTypes As Integer[], LineNumber As Intege
     i += 2
     Continue
 
-
   SYMIGNORED:
 
   Next
@@ -248,7 +245,6 @@ Public Sub _call(aSymbols As String[], aTypes As Integer[], LineNumber As Intege
   Endif
 
 End
-
 
 Public Sub GetProjectOptions() As String
 
@@ -262,7 +258,6 @@ Public Sub GetProjectOptions() As String
   Return sOptOut
 
 End
-
 
 '' Sets the startup Class/Module for a script
 Public Sub SetStartup(StartupName As String)
@@ -291,7 +286,3 @@ Public Sub _get(index As String) As Variant
   Return ProjectInfo[index]
 
 End
-
-
-
-

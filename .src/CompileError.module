@@ -25,4 +25,3 @@ Public Sub _Call(sPath As String, iLine As Integer, sMessage As String, Optional
   If HaltCompile Then Error.Raise(ErrorMessage)
 
 End ' Gambas module file
-
