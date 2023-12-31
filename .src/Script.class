@@ -15,7 +15,7 @@
 
 Export
 
-Static Property Read Version As String Use $Version = "3.18.1"
+Static Property Read Version As String Use $Version = "3.19.2.2"
 '' used to define a blocking wait on script.wait()
 Public Const WaitBlocks As Boolean = False
 '' used to define a NonBlocking wait on script.wait()
