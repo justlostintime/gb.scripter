@@ -1,7 +1,7 @@
 ' Gambas module file
 
 Private HighlightOn As Boolean = False
-Private HighlightOverride As Boolean = False '' set when the automatic highlight is overridded
+Private HighlightOverride As Boolean = False '' set when the automatic highlight is overridden
 Property highlighting As Boolean  '' Turn on or off listing text highlighting
 
 Public Sub _call(oContext As Context, sPrjPath As String, CompileErrors As String) As String
