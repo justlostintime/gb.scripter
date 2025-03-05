@@ -1,6 +1,6 @@
 [Component]
 Key=gb.scripter
-Version=3.19.2
+Version=3.19.4
 Authors=Westwood justlostintime
 Needs=XML
 Requires=gb.eval,gb.eval.highlight,gb.xml,gb.util

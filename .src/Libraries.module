@@ -7,21 +7,21 @@ Public $aLibraryPaths As New String[]
 Public $sLibraryNoVendor As String = User.home &/ "/.local/share/" &/ gbsver &/ "lib/(unknown)" ' Gambas module file
 Private $bInitialized As Boolean = False
 
-
 '' This function looks for XDG-DATA-HOME and XDG-DATA-DIRS and replaces
 '' Entries in the $aLibraryPaths config array as needed
 Public Sub ConfigureLibraries()
+
   Dim aDataPaths As String[]
-  
-'' Check if already initialized
-If $bInitialized Then
-     Return
-Endif
+
+  '' Check if already initialized
+  If $bInitialized Then
+    Return
+  Endif
 
   $bInitialized = True
-  
+
   If Env["XDG_DATA_HOME"] <> "" Then
-    $aLibraryPaths[0] = Env["XDG_DATA_HOME"] &/ gbsver &/ "lib"
+    $aLibraryPaths.Add(Env["XDG_DATA_HOME"] &/ gbsver &/ "lib")
   Endif
 
   $aLibraryPaths.Add(User.home &/ "/.local/share/" &/ gbsver &/ "lib")
@@ -96,8 +96,8 @@ Public Sub ProcessLibrary(LibName As String, ProgLine As Integer, Path As String
   Dim LibFilename As String
   Dim LibDirPath As String
   Dim WantedVersion As String
-  
-  If Not $bInitialized Then 
+
+  If Not $bInitialized Then
     ConfigureLibraries()
   Endif
 
@@ -123,16 +123,15 @@ Public Sub ProcessLibrary(LibName As String, ProgLine As Integer, Path As String
   Endif
 
   If LibEntry = "" Then
-     CompileError(Path, ProgLine, Subst(("Unknown Library") & ": &1", LibName))
+    CompileError(Path, ProgLine, Subst(("Unknown Library") & ": &1", LibName))
   Else
 
-     Verbose(("use Library Path") & ": " & LibEntry)
+    Verbose(("use Library Path") & ": " & LibEntry)
 
     $cLibraries.Add(LibEntry, LibFileName)
   Endif
-  
-End
 
+End
 
 Public Sub CheckLibVersions(sPath As String, Version As String) As String
 
@@ -152,16 +151,18 @@ Public Sub CheckLibVersions(sPath As String, Version As String) As String
 End
 
 Public Sub clear()
-  
-    $cLibraries.Clear()
-  
+
+  $cLibraries.Clear()
+
 End
 
 Public Sub LibraryEntries() As String
+
   Dim sPrjFileContent As String = ""
-   For Each ci As String In $cLibraries
+
+  For Each ci As String In $cLibraries
     sPrjFileContent &= "Library=" & ci & "\n"
   Next
   Return sPrjFileContent
-End
 
+End

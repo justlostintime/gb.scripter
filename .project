@@ -1,13 +1,14 @@
 # Gambas Project File 3.0
 Title=gb.scripter
 Startup=DefaultMain
-Version=3.19.1
+Version=3.19.4
 Component=gb.image
 Component=gb.eval
 Component=gb.eval.highlight
 Component=gb.util
 Component=gb.pcre
 Component=gb.xml
+StartupEnvironment=GB_PCODE_VERSION=3.18
 Description="Scripter Component, execute scripts and load script based plugins"
 Authors="Westwood justlostintime"
 TabSize=2
@@ -22,8 +23,7 @@ Address=justlostintime@gmail.com
 Url=https://github.com/justlostintime
 License=General Public License
 Prefix=1
-PackageName=westwood-gb-scripter-3.19.2
-PackageVersion=2
+PackageName=westwood-gb-scripter-3.19.4
 CreateEachDirectory=1
 RuntimeVersion="3.18"
 Packager=1

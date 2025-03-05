@@ -15,7 +15,7 @@
 
 Export
 
-Static Property Read Version As String Use $Version = "3.19.2.2"
+Static Property Read Version As String Use $Version
 '' used to define a blocking wait on script.wait()
 Public Const WaitBlocks As Boolean = False
 '' used to define a NonBlocking wait on script.wait()
@@ -117,6 +117,7 @@ Property OutputArchiveLocation As String   '' Put the generated executable in a 
 '' If nothing is provided then return with initialized object, compile nothing.
 Public Sub _new(Optional ScriptName As String = "", ScriptSource As String = "")
 
+  $Version = File.load("version")
   $sScriptName = ScriptName
   If ScriptSource <> "" Then
     $sScriptSource = ScriptSource
