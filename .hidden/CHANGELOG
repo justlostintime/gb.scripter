@@ -1,3 +1,13 @@
+* Mon Sep 28 2026 Westwood Justlostiontime <justlostintime@gmail.com> 3.22.1
+- Updated the version and supported range
+
+* Mon Sep 28 2026 Westwood Justlostiontime <justlostintime@gmail.com> 3.22.2
+
+* Sun Sep 27 2026 Westwood Justlostiontime <justlostintime@gmail.com> 3.21.7
+
+* Thu Sep 24 2026 Westwood Justlostiontime <justlostintime@gmail.com> 3.21.6
+- Updated to work with latest 3.21-3.99, replaced eval.highligh with highlight
+
 * Wed Mar 05 2025 Westwood Justlostiontime <justlostintime@gmail.com> 3.19.4
 
 * Mon Jan 01 2024 Westwood Justlostiontime <justlostintime@gmail.com> 3.19.2

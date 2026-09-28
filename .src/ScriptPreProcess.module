@@ -143,7 +143,7 @@ Public Sub _call(aSymbols As String[], aTypes As Integer[], LineNumber As Intege
       SYMUSEHTTPSERVER, SYMPUBLIC, SYMPROPERTY
     Continue
 
-  SYNOTFOUND:
+SYNOTFOUND:
 
     If ProjectInfo.Exist(PropKey) Then
       ProjectInfo[PropKey] = UnQuote(aSymbols[i])
@@ -153,7 +153,7 @@ Public Sub _call(aSymbols As String[], aTypes As Integer[], LineNumber As Intege
       Break
     Endif
 
-  SYMTYPE:
+SYMTYPE:
     Dim TypeIndex As Integer
     TypeIndex = CompTypes[Upper(UnQuote(aSymbols[i]))]
     Select Case TypeIndex
@@ -170,51 +170,51 @@ Public Sub _call(aSymbols As String[], aTypes As Integer[], LineNumber As Intege
     End Select
     Continue
 
-  SYMVERSION:
+SYMVERSION:
     ProjectInfo["Version"] = UnQuote(aSymbols[i])
     Continue
 
-  SYMDESCRIPTION:
+SYMDESCRIPTION:
     ProjectInfo["Description"] = UnQuote(aSymbols[i])
     Continue
 
-  SYMMAINTAINER:
+SYMMAINTAINER:
     ProjectInfo["Maintainer"] = UnQuote(aSymbols[i])
     Continue
 
-  SYMAUTHORS:
+SYMAUTHORS:
     ProjectInfo["Authors"] = UnQuote(aSymbols[i])
     Continue
 
-  SYMVENDOR:
+SYMVENDOR:
     ProjectInfo["Vendor"] = UnQuote(aSymbols[i])
     Continue
 
-  SYMLICENSE:
+SYMLICENSE:
     ProjectInfo["License"] = UnQuote(aSymbols[i])
     Continue
 
-  SYMNAME:
+SYMNAME:
     ProjectInfo["Name"] = UnQuote(aSymbols[i])
     Continue
 
-  SYMINSTALL:
+SYMINSTALL:
     isInstall = IIf(Upper(UnQuote(aSymbols[i])) = "TRUE", True, False)
     Continue
 
-  SYMTITLE:
+SYMTITLE:
     ProjectInfo["Title"] = UnQuote(aSymbols[i])
     Continue
 
-  SYMSTARTUP:
+SYMSTARTUP:
     ProjectInfo["Startup"] = UnQuote(aSymbols[i])
     Continue
 
-  SYMUSEHTTPSERVER:
+SYMUSEHTTPSERVER:
     ProjectInfo["UseHttpServer"] = UnQuote(aSymbols[i])
     Continue
 
-  SYMPUBLIC:
+SYMPUBLIC:
     Dim sPublicFilePath As String = UnQuote(aSymbols[i])
     Dim sPPATH As String = File.Dir(sPublicFilePath)
     If sPpath = "" Then
@@ -226,7 +226,7 @@ Public Sub _call(aSymbols As String[], aTypes As Integer[], LineNumber As Intege
     PublicFiles.Add(sPublicFilePath)
     Continue
 
-  SYMPROPERTY: ' Define a Plugin property and value Format #Script Property=Propertyname:value
+SYMPROPERTY: ' Define a Plugin property and value Format #Script Property=Propertyname:value
     If aSymbols[i + 1] <> ":" Or If aTypes[i + 2] <> Highlight.String Then
       CompileError(sPath, LineNumber, ("Invalid Plugin Property Declaration"))
     Endif
@@ -235,7 +235,7 @@ Public Sub _call(aSymbols As String[], aTypes As Integer[], LineNumber As Intege
     i += 2
     Continue
 
-  SYMIGNORED:
+SYMIGNORED:
 
   Next
 

@@ -303,7 +303,7 @@ Private Sub TokenizeFile(SourceBuffer As String)
             If MainDef.count > 1 Then
               Warning(Subst("Multiple &1 Definitions :", $sEntryPoint), True)
               For Each i As Integer In MainDef
-                Verbose(Subst("&1 Defined : &2", $sEntryPoint, Quote(MainDef.key) & "." & i), True)
+                Warning(Subst("&1 Defined : &2", $sEntryPoint, Quote(MainDef.key) & "." & i), True)
               Next
               CompileError(cIncludeStack.last, CurrentLineNumber.last, "Too Many " & $sEntryPoint & " Definitions")
             Else
@@ -457,7 +457,7 @@ Private Sub TokenizeFile(SourceBuffer As String)
       Continue
     Endif
 
-  ContinueRecord:
+ContinueRecord:
 
     ProgramLines.Add(sLine)
     ProgramSymbols.Add(Highlight.symbols)

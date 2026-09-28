@@ -1,7 +1,8 @@
 [Component]
 Key=gb.scripter
-Version=3.19.4
+Version=3.22.1
 Authors=Westwood justlostintime
 Needs=XML
-Requires=gb.eval,gb.eval.highlight,gb.xml,gb.util
+Requires=gb.eval,gb.xml,gb.util,gb.highlight,gb.pcre,gb.image
+CompatibleUntil=3.99
 Include=gb.process

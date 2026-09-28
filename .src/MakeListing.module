@@ -84,7 +84,7 @@ Public Sub UseHighlighting(Optional OutputStream As File = File.out) As File
 
 End
 
-'' Return the cirrent state of TextHighlighting
+'' Return the current state of TextHighlighting
 Private Function highlighting_Read() As Boolean
 
   Return HighlightOn

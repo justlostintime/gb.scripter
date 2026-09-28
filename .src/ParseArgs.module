@@ -59,13 +59,13 @@ Public Function _Call(c As Context, aArgs As String[]) As String
       gFast, gUnsafe, gTrace, gUse, gWarnings, gBuildOnly, gList, gStdIn, gLazyStrict,
       gTerseListing, gConvertProject, gConvertScript, gPlugin
 
-  gVersion:
+gVersion:
 
     Print Application.Version
     $bExit = True
     Break
 
-  gLicense:
+gLicense:
 
     Print
     If Not c.$bWebPage Then
@@ -77,7 +77,7 @@ Public Function _Call(c As Context, aArgs As String[]) As String
     $bExit = True
     Break
 
-  gHelp:
+gHelp:
 
     If Not c.$bWebPage Then
       Print File.Load("usage-gbs")
@@ -87,20 +87,20 @@ Public Function _Call(c As Context, aArgs As String[]) As String
     $bExit = True
     Break
 
-  gNoCache:
+gNoCache:
     c.$bNoCache = True
     Continue
 
-  gDebugInfo:
+gDebugInfo:
     c.$bDebug = True
     Continue
 
-  gVerbose:
+gVerbose:
     c.$bVerbose = True
     Verbose.$bVerboseOn = True
     Continue
 
-  gExecCommandLine:
+gExecCommandLine:
     If Not c.$bWebPage Then
       c.$bExecuteFromArgs = True
     Else
@@ -112,37 +112,37 @@ Public Function _Call(c As Context, aArgs As String[]) As String
     '         c.$bPrecompiler = True
     '         Continue
 
-  gFast:
+gFast:
     c.$bFast = True
     Continue
 
-  gUnsafe:
+gUnsafe:
     c.$bUnsafe = True
     Continue
 
-  gTrace:
+gTrace:
     c.$bTrace = True
     Continue
 
-  gUse:
+gUse:
     If Not (aArgs[I + 1] Begins "-") Then
       c.$sUse = aArgs[I + 1]
       Inc I
     Endif
     Continue
 
-  gWarnings:
+gWarnings:
     c.$bWarning = True
     Warning.$bWarningOn = True
     Continue
 
-  gBuildOnly:
+gBuildOnly:
     c.$bBuildOnly = True
     Continue
 
-  gList:
-    If Not (Application.aArgs[I + 1] Begins "-") Then
-      Select Case Upper(aArgs[I + 1])
+gList:
+    If Not (Application.Args[I + 1] Begins "-") Then
+      Select Case Upper(Args[I + 1])
         Case "COMPONENT"
           c.$bListComponents = True
           CComponent.ListAllComponents()
@@ -154,7 +154,7 @@ Public Function _Call(c As Context, aArgs As String[]) As String
           Libraries.ListLibraries()
 
         Default
-          Error.Raise(aArgs[I + 1] & " " & ("Not Supported List Type - Library or Component - are supported"))
+          Error.Raise(Args[I + 1] & " " & ("Not Supported List Type - Library or Component - are supported"))
 
       End Select
     Endif
@@ -162,24 +162,24 @@ Public Function _Call(c As Context, aArgs As String[]) As String
     $bExit = True
     Break
 
-  gStdIn:    ' Run from stdin Until eof recieved
+gStdIn:    ' Run from stdin Until eof recieved
 
     c.$bScriptSourceStdIn = True
     c.$bNoCache = True
 
     Break
 
-  gLazyStrict: ' define if publics should generate error if no main or be processed
+gLazyStrict: ' define if publics should generate error if no main or be processed
 
     c.$bAllowLazyScript = False
     Continue
 
-  gTerseListing: ' only show the actual line the error was on
+gTerseListing: ' only show the actual line the error was on
 
     c.$bTerseListing = True
     Continue
 
-  gConvertProject: ' do a project to script conversion
+gConvertProject: ' do a project to script conversion
     If i + 1 > aArgs.max Then
       warning("Not enough parameters for Project conversion - need <source project Directory> [<dest>]", True)
     Else
@@ -192,7 +192,7 @@ Public Function _Call(c As Context, aArgs As String[]) As String
     $bExit = True
     Break
 
-  gConvertScript: ' do a script to project conversion
+gConvertScript: ' do a script to project conversion
     If i + 1 > aArgs.max Or If i + 2 < aArgs.max Then
       warning("Not enough parameters for Script conversion - need <source script> [<dest directory where project created>]", True)
       $bExit = True
@@ -202,7 +202,7 @@ Public Function _Call(c As Context, aArgs As String[]) As String
     Endif
     Continue
 
-  gPlugin:
+gPlugin:
     If i + 1 > aArgs.max Or If i + 2 < aArgs.max Then
       warning("Not enough parameters for plugin - need <source script> [<dest directory where plugin is created>]", True)
       $bExit = True

@@ -12,6 +12,7 @@ Private $bInitialized As Boolean = False
 Public Sub ConfigureLibraries()
 
   Dim aDataPaths As String[]
+  Dim iI As Integer
 
   '' Check if already initialized
   If $bInitialized Then
@@ -35,7 +36,7 @@ Public Sub ConfigureLibraries()
   ' As an optional extra use the LD_LIBRARY_PATH to look for shared libraries as well
   If Env["LD_LIBRARY_PATH"] <> "" Then
     aDataPaths = Split(Env["LD_LIBRARY_PATH"], ":", "", True)
-    For iI As Integer = 0 To aDataPaths.Max
+    For iI = 0 To aDataPaths.Max
       aDataPaths[iI] &= "/" & gbsver
     Next
     $aLibraryPaths.Insert(aDataPaths, 1)
@@ -44,7 +45,7 @@ Public Sub ConfigureLibraries()
   ' look in all the directories specified by the XDG_DATA paths
   If Env["XDG_DATA_DIRS"] <> "" Then
     aDataPaths = Split(Env["XDG_DATA_DIRS"], ":", "", True)
-    For iI As Integer = 0 To aDataPaths.Max
+    For iI = 0 To aDataPaths.Max
       aDataPaths[iI] &= "/" & gbsver &/ "lib"
     Next
     $aLibraryPaths.Insert(aDataPaths, 1)
@@ -74,14 +75,15 @@ Public Sub ListLibrariesIn(sPath As String, Optional Level As Integer = 0) As St
 
   Dim fileList As String[]
   Dim LibList As New String[]
+  Dim sFile As String
 
   If Not Exist(sPath) Or If level > 4 Then Return LibList
   FileList = Dir(sPath, "*:*.gambas", gb.file)
-  For Each sFile As String In FileList
+  For Each sFile In FileList
     LibList.Add(sPath &/ sFile)
   Next
   FileList = Dir(sPath, "", gb.Directory)
-  For Each sFile As String In FileList
+  For Each sFile In FileList
     LibList.Insert(ListLibrariesIn(sPath &/ sFile, Level + 1))
   Next
   Return LibList
@@ -101,17 +103,25 @@ Public Sub ProcessLibrary(LibName As String, ProgLine As Integer, Path As String
     ConfigureLibraries()
   Endif
 
-  LibFileName = File.Name(LibName)                                            ' If full path then get the file name part
-  LibDirPath = File.Dir(LibName)                                                      ' Get the dir path portion
-  LibAndVersion = Split(LibFileName, ":", "", True)
-  If LibAndVersion.count = 1 Then LibAndVersion.add("")      ' add a "" to get highest version if no version provided
-  LibPath = Split(LibAndVersion[0], ".", "", True)                        ' We should now have a vendor and libname or just one entry if no vendors
-  WantedVersion = LibAndVersion[1]                                            ' The version that we will look for
+  LibFileName = File.Name(LibName)                            ' If full path then get the file name part
+  LibDirPath = File.Dir(LibName)                              ' Get the dir path portion
+  LibAndVersion = Split(LibFileName, ":", "", True)           ' Get the version number part
+  If LibAndVersion.count = 1 Then LibAndVersion.add("")       ' add a "" to get highest version if no version provided
+  WantedVersion = LibAndVersion[1]                            ' The version that we will look for
 
-  If LibDirPath <> "" Then                                 ' we have an absolute path or home based path
+  If LibDirPath[0] = ":" Then                                  ' then we have a relative library
+    LibPath = New String[]
+    LibPath.Add(Right(LibDirPath, -1))                        ' drop the leading :
+    LibPath.Add(LibAndVersion[0])
+    LibDirPath = ""                                            ' so the vendors name is found
+  Else
+    LibPath = Split(LibAndVersion[0], ".", "", True)           ' We should now have a vendor and libname or just one entry if no vendors
+  Endif
+
+  If LibDirPath <> "" Then                                    ' we have an absolute path or home based path
     Try LibEntry = CheckLibVersions(LibDirPath &/ LibPath.Join("/"), WantedVersion)     ' if no version force to highest by using ""
   Else
-    If LibPath.count = 1 Then                                ' We have an unknown vendor we can only check the (unknown) local directory then
+    If LibPath.count = 1 Then                                 ' We have an unknown vendor we can only check the (unknown) local directory then
       Try LibEntry = CheckLibVersions($sLibraryNoVendor &/ LibPath[0], WantedVersion)
     Else
       For Each SearchLocation As String In $aLibraryPaths

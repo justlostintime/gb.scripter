@@ -1,0 +1,8 @@
+' Gambas module file
+
+Public Sub main()
+
+  Libraries.ProcessLibrary(":westwood/sharedmem:3.22", 10, "/home/brian/test")
+
+End
+

@@ -100,7 +100,7 @@ Public Sub ScripterMain(aArgs As String[], Optional NoWaitComplete As Boolean = 
       If Not Exist(sCacheDir) Then
         Try Shell "mkdir -p " & sCacheDir Wait
         If Error Then
-          CompileError(("Unable to create cache directory") & " " & sCacheDir)
+          CompileError("...", 0, ("Unable to create cache directory") & " " & sCacheDir, False)
         Endif
       Endif
       sCacheDir = File.RealPath(sCacheDir)
@@ -217,7 +217,7 @@ Public Sub ScripterMain(aArgs As String[], Optional NoWaitComplete As Boolean = 
       '' if we are executing a project then set some info up
       If $bExecProjectDirectory Then
         $sPrjPath = $sPath
-        For Each Sfile As String In Dir($sPath &/ ".src", "*", gb.file)
+        For Each Sfile In Dir($sPath &/ ".src", "*", gb.file)
           Dim sourcefile As String = $sPath &/ ".src" &/ Sfile
           $oContext.$aIncFiles.Add(SourceFile)
           $oContext.$aIncFiles.Add(Stat(SourceFile).LastModified)
@@ -244,7 +244,7 @@ Public Sub ScripterMain(aArgs As String[], Optional NoWaitComplete As Boolean = 
         $oContext.$aIncFiles.push($sPath)
       Endif
 
-    lExecuteProject:
+lExecuteProject:
       Dim parmstring As String = "-a"
       If $oContext.$bdebug Then parmstring &= "g"
       If $oContext.$bWarning Then parmstring &= "w"

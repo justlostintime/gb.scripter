@@ -673,16 +673,17 @@ Private ValidObjects As String[] = ["Integer[]", "Float[]", "Long[]", "Boolean[]
 Private Sub BuildRuntimeArgs(aArgs As Variant[]) As String[]
 
   Dim ResultSet As New String[]
+  Dim s As String
 
   For Each v As Variant In aArgs
     Select Case TypeOf(v)
       Case gb.Object
         If Object.Class(v).name == "String[]" Then
-          For Each s As String In v
+          For Each s In v
             ResultSet.Add(s)
           Next
         Else If ValidObjects.Exist(Object.Class(v).name) Then
-          For Each s As String In v
+          For Each s In v
             ResultSet.Add(Str$(s))
           Next
         Else
@@ -738,7 +739,7 @@ End
 
 Private Function EndOfFile_Read() As Boolean
 
-  Return $pScriptProcess.EndOfile
+  Return $pScriptProcess.EndOfFile
 
 End
 

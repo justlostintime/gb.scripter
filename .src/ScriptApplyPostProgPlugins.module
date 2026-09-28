@@ -10,7 +10,7 @@
 ''' > When This plugin changes a script line it must also update the Symbol,\
 ''' > Type and position arrays for this line by calling highlight for the line\
 ''' > and updating the related entries.\
-''' > This is only important if there is more that one Post Process plugin.\ 
+''' > This is only important if there is more that one Post Process plugin.\
 ''' \
 ''' Public Sub ScriptPostProgPlugins(sProgram As String\[\], \[ProgramSymbols As String\[\]\[\], ProgramTypes As Integer\[\]\[\], ProgramPositions As Integer\[\]\[\]\])\
 ''' \
@@ -30,11 +30,11 @@ Export
 '' ProgramPositions is an array of arrays of the position of eash symbol in the program line<br>
 '' Returns nothing, Plugin may modify collections<br>
 Public Sub _call(sProgram As String[], Optional ProgramSymbols As String[][] = Null, ProgramTypes As Integer[][] = Null, ProgramPositions As Integer[][] = Null)
-  
-  If ScriptSetPostProcessPlugins.HasPlugins() Then 
-     For Each oPreProc As Object In Reader.PostProgramPlugins
-       sProgram = oPreProc.PostProcessProgram(sProgram, ProgramSymbols, ProgramTypes, ProgramPositions)
-     Next
+
+  If ScriptSetPostProcessPlugins.HasPlugins() Then
+    For Each oPreProc As Object In Reader.PostProgramPlugins
+      sProgram = oPreProc.PostProcessProgram(sProgram, ProgramSymbols, ProgramTypes, ProgramPositions)
+    Next
   Endif
-  
+
 End
